@@ -6,7 +6,7 @@ const sizes = {
     CARRIER: 5,
 }
 
-const facing = {
+const direction = {
     UP: 0,
     RIGHT: 1,
     DOWN: 2,
@@ -14,8 +14,10 @@ const facing = {
 }
 
 class Ship {
-    constructor(size) {
+    constructor(size, facing) {
         this.sections = [];
+        this.size = size;
+        this.facing = facing;
         for (let i = 0; i < size; i++) {
             this.sections.push(false);
         }
@@ -30,4 +32,4 @@ class Ship {
     }
 }
 
-export { sizes, facing, Ship }
+export { sizes, direction, Ship }
