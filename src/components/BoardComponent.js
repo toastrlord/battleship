@@ -9,13 +9,27 @@ class BoardComponent extends Component {
         this.state = {
             board: new Gameboard()
         }
+
+        this.onHit = this.onHit.bind(this);
+    }
+
+    onHit(row, col) {
+        console.log(`clicked on ${row},${col}`);
+        const newBoard = Object.assign(this.state.board);
+        newBoard.recieveAttack(row, col);
+
+        this.setState({
+            board: newBoard,
+        });
+        console.log(newBoard.spaces);
     }
 
     generateRow(row) {
         const spaces = this.state.board.spaces;
-        return (<div className='col'>
-            {spaces.slice(row * HEIGHT, row * HEIGHT + WIDTH).map((space, index) => {
-                return <SpaceComponent isHit={space.isHit} />;
+        return (<div className='col' key={row}>
+            {spaces.slice(row * HEIGHT, row * HEIGHT + WIDTH).map((space, col) => {
+                console.log(space.isHit);
+                return <SpaceComponent isHit={space.isHit} key={row * HEIGHT + col} onSpaceClicked={() => this.onHit(row, col)}/>;
             })}
         </div>);
     }

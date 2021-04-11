@@ -1,7 +1,10 @@
+@import 'reset.css';
+
 .space {
     width: 10px;
     height: 10px;
     margin: 2px;
+    cursor: pointer;
 }
 
 .hit-square {

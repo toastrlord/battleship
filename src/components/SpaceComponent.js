@@ -1,5 +1,6 @@
 function SpaceComponent(props) {
-    const {isHit} = props;
+    const {isHit, onSpaceClicked} = props;
+    console.log(isHit);
     let className;
     if (isHit) {
         className = 'hit-square';
@@ -7,7 +8,7 @@ function SpaceComponent(props) {
     else {
         className = 'empty-square';
     }
-    return <div className={className + ' space'} />;
+    return <div className={className + ' space'} onClick={onSpaceClicked}/>;
 }
 
 export default SpaceComponent;
