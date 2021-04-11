@@ -1,5 +1,5 @@
-import {direction, Ship} from './ship';
-import Space from './space';
+import {direction} from './Ship';
+import Space from './Space';
 
 const WIDTH = 10;
 const HEIGHT = WIDTH;
@@ -56,10 +56,10 @@ class Gameboard {
         return this.spaces[row * WIDTH + col];
     }
 
-    fireAtSpace(row, col) {
+    recieveAttack(row, col) {
         const space = this.getSpace(row, col);
         space.onHit();
     }
 }
 
-export default Gameboard;
+export {WIDTH, HEIGHT, Gameboard};

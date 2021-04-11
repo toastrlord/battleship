@@ -1,0 +1,17 @@
+.space {
+    width: 10px;
+    height: 10px;
+    margin: 2px;
+}
+
+.hit-square {
+    background-color:red;
+}
+
+.empty-square {
+    background-color: blue;
+}
+
+.flex-grid {
+    display: flex;
+}
