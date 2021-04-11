@@ -1,6 +1,10 @@
+const HIT_STATE_EMPTY = 0;
+const HIT_STATE_HIT = 1;
+const HIT_STATE_MISS = 2;
+
 class Space {
     constructor() {
-        this.isHit = false;
+        this.hitState = HIT_STATE_EMPTY;
     }
 
     addHitListener(callback) {
@@ -8,11 +12,15 @@ class Space {
     }
 
     onHit() {
+        // presumes that if we have a callback registered that this must be a ship space
         if (this.onHitCallback) {
             this.onHitCallback();
+            this.hitState = HIT_STATE_HIT;
         }
-        this.isHit = true;
+        else {
+            this.hitState = HIT_STATE_MISS;
+        }
     }
 }
 
-export default Space;
+export {HIT_STATE_EMPTY, HIT_STATE_HIT, HIT_STATE_MISS, Space};

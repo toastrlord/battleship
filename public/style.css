@@ -1,20 +1,31 @@
 @import 'reset.css';
 
 .space {
-    width: 10px;
-    height: 10px;
+    width: 25px;
+    height: 25px;
     margin: 2px;
-    cursor: pointer;
+    border: solid 2px black;
 }
 
 .hit-square {
     background-color:red;
 }
 
+.miss-square {
+    background-color: navy;
+}
+
 .empty-square {
     background-color: blue;
+    cursor: pointer;
 }
 
 .flex-grid {
     display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
 }

@@ -1,5 +1,5 @@
-import {direction} from './Ship';
-import Space from './Space';
+import {DIRECTION_DOWN, DIRECTION_UP, DIRECTION_LEFT, DIRECTION_RIGHT} from './Ship';
+import {Space} from './Space';
 
 const WIDTH = 10;
 const HEIGHT = WIDTH;
@@ -17,19 +17,19 @@ class Gameboard {
     addShip(ship, startRow, startCol) {
         const facing = ship.facing;
         const size = ship.size;
-        const shipSpaces = [];
+        let shipSpaces = [];
         let rowDelta = 0;
         let colDelta = 0;
         switch(facing) {
-            case direction.DOWN:
+            case DIRECTION_DOWN:
                 rowDelta = 1;
                 // go from startRow down to startRow + (size - 1)
                 break;
-            case direction.LEFT:
+            case DIRECTION_LEFT:
                 colDelta = -1;
                 // go from startCol up to startCol - (size - 1)
                 break;
-            case direction.RIGHT:
+            case DIRECTION_RIGHT:
                 colDelta = 1;
                 // go from startCol up to startCol + (size - 1)
                 break;
@@ -41,9 +41,11 @@ class Gameboard {
         for (let i = 0; i < size; i++) {
             const row = startRow + (i * rowDelta);
             const col = startCol + (i * colDelta);
-            shipSpaces.push({row, col});
+            if (col < 0 || col >= WIDTH || row < 0 || row >= HEIGHT) {
+                throw new Error(`Tried to place ship out of bounds! Row: ${row}, Col: ${col}`);
+            }
+            shipSpaces = shipSpaces.concat({row, col});
         }
-        
         shipSpaces.forEach(({row, col}, index) => {
             const currentSpace = this.getSpace(row, col);
             currentSpace.addHitListener(() => {
