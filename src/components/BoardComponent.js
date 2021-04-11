@@ -7,7 +7,7 @@ class BoardComponent extends Component {
     constructor(props) {
         super(props);
         const gameBoard = new Gameboard();
-        const battleship = makeBattleship(DIRECTION_UP);
+        const battleship = makeBattleship(DIRECTION_UP, () => console.log('Battleship sunk!'));
         gameBoard.addShip(battleship, 9, 9);
 
         this.state = {
@@ -36,8 +36,12 @@ class BoardComponent extends Component {
     }
 
     render() {
-        return (<div className='flex-grid'>
-            {[0,1,2,3,4,5,6,7,8,9].map(row => {
+        const rows = [];
+        for (let i = 0; i < HEIGHT; i++) {
+            rows.push(i);
+        }
+        return (<div className='board-grid'>
+            {rows.map(row => {
                 return this.generateRow(row);
             })}
         </div>);

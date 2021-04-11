@@ -1,20 +1,20 @@
-import { HIT_STATE_MISS, HIT_STATE_HIT } from "../Space";
+import {HIT_STATE_MISS, HIT_STATE_HIT } from "../Space";
 
 function SpaceComponent(props) {
     const {hitState, onSpaceClicked} = props;
     let className;
+    // only allow a click event if this square hasn't been clicked yet
     switch (hitState) {
         case HIT_STATE_HIT:
             className = 'hit-square';
-            break;
+            return <div className={className + ' space'}/>;
         case HIT_STATE_MISS:
             className = 'miss-square'
-            break;
+            return <div className={className + ' space'}/>;
         default:
             className = 'empty-square';
+            return <div className={className + ' space'} onClick={onSpaceClicked}/>;
     }
-
-    return <div className={className + ' space'} onClick={onSpaceClicked}/>;
 }
 
 export default SpaceComponent;

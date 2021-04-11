@@ -48,6 +48,9 @@ class Gameboard {
         }
         shipSpaces.forEach(({row, col}, index) => {
             const currentSpace = this.getSpace(row, col);
+            if (currentSpace.onHitCallback) {
+                throw new Error(`Tried to place ships on top of each other! Row: ${row}, Col: ${col}`);
+            }
             currentSpace.addHitListener(() => {
                 ship.hit(index);
             });

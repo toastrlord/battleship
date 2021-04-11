@@ -20,7 +20,7 @@
     cursor: pointer;
 }
 
-.flex-grid {
+.board-grid {
     display: flex;
     flex-direction: column;
 }
