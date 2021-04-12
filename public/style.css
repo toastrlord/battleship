@@ -3,7 +3,6 @@
 .space {
     width: 25px;
     height: 25px;
-    margin: 2px;
     border: solid 2px black;
 }
 
@@ -18,6 +17,10 @@
 .empty-square {
     background-color: blue;
     cursor: pointer;
+}
+
+.ship-square {
+    background-color: grey;
 }
 
 .board-grid {

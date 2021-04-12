@@ -7,6 +7,7 @@ const HEIGHT = WIDTH;
 class Gameboard {
     constructor() {
         this.spaces = [];
+        this.ships = [];
         for (let i = 0; i < WIDTH; i++) {
             for (let j = 0; j < HEIGHT; j++) {
                 this.spaces.push(new Space());
@@ -55,6 +56,7 @@ class Gameboard {
                 ship.hit(index);
             });
         });
+        this.ships.push(ship);
     }
 
     getSpace(row, col) {
@@ -64,6 +66,12 @@ class Gameboard {
     recieveAttack(row, col) {
         const space = this.getSpace(row, col);
         space.onHit();
+    }
+
+    allShipsSunk() {
+        return this.ships.reduce((prev, ship) => {
+            return prev && ship.isSunk();
+        });
     }
 }
 
