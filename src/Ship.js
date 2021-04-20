@@ -23,12 +23,14 @@ class Ship {
     hit(position) {
         this.sections[position] = true;
         if (this.isSunk()) {
-            this.onSunk();
+            //this.onSunk();
         }
     }
 
     isSunk() {
-        return this.sections.reduce((prev, current) => prev & current);
+        return this.sections.reduce((prev, current) => {
+            return prev && current;
+        });
     }
 }
 

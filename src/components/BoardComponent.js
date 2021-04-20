@@ -28,9 +28,10 @@ class BoardComponent extends Component {
 
     generateRow(row) {
         const spaces = this.state.board.spaces;
+        const onClickCallback = this.props.onClickCallback;
         return (<div className='row' key={row}>
             {spaces.slice(row * HEIGHT, row * HEIGHT + WIDTH).map((space, col) => {
-                return <SpaceComponent hitState={space.hitState} key={row * HEIGHT + col} onSpaceClicked={() => this.onHit(row, col)}/>;
+                return <SpaceComponent hitState={space.hitState} key={row * HEIGHT + col} onSpaceClicked={() => onClickCallback(row, col)}/>;
             })}
         </div>);
     }

@@ -66,12 +66,20 @@ class Gameboard {
     recieveAttack(row, col) {
         const space = this.getSpace(row, col);
         space.onHit();
+        return (space.onHitCallback !== undefined);
     }
 
     allShipsSunk() {
+        let allSunk = true;
+        for (let i = 0; i < this.ships.length; i++) {
+            allSunk = allSunk && this.ships[i].isSunk();
+        }
+        return allSunk;
+        /*
         return this.ships.reduce((prev, ship) => {
+            console.log(`${ship} Is sunk? ${ship.isSunk()}`);
             return prev && ship.isSunk();
-        });
+        });*/
     }
 }
 

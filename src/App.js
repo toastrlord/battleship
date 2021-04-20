@@ -10,7 +10,7 @@ class App extends Component {
     super(props);
 
     this.state = {
-      gameState: PLACING_SHIPS
+      gameState: PLAYING
     }
   }
 
@@ -18,7 +18,7 @@ class App extends Component {
     const {gameState} = this.state;
     switch(gameState) {
       case PLAYING:
-        return null;
+        return <BoardComponent onClickCallback={this.props.makePlayerMove}></BoardComponent>;
       case GAME_OVER:
         return null;
       default:
