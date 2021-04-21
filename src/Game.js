@@ -1,16 +1,15 @@
 import { Gameboard } from "./Gameboard";
+import App from './App';
 import {WIDTH, HEIGHT} from './Gameboard';
 import { DIRECTION_RIGHT, makeBattleship } from "./Ship";
-import {HIT_STATE_EMPTY} from './Space';
+import {HIT_STATE_EMPTY, HIT_STATE_MISS} from './Space';
 
 function findRandomSpace(opposingBoard) {
     let row;
     let col;
     do { // keep trying until we find a space that hasn't been hit
-        row = Math.round(Math.random() * HEIGHT - 1);
-        col = Math.round(Math.random() * WIDTH - 1);
-        console.log(opposingBoard);
-        console.log(opposingBoard.getSpace(row, col).hitState);
+        row = Math.round(Math.random() * (HEIGHT - 1));
+        col = Math.round(Math.random() * (WIDTH - 1));
     } while (opposingBoard.getSpace(row, col).hitState !== HIT_STATE_EMPTY);
     return {row, col};
 }
@@ -27,14 +26,17 @@ class Game {
         this.gameOver = false;
         this.humanTurn = true;
         this.makePlayerMove = this.makePlayerMove.bind(this);
+        this.appComponent = <App makePlayerMove={this.makePlayerMove} playerBoard={this.playerBoard} computerBoard={this.computerBoard}/>;
     }
 
     makePlayerMove(row, col) {
         console.log("Player moving");
         if (this.humanTurn) {
-            const hit = this.computerBoard.recieveAttack(row, col);
-            if (!hit) {
-                this.humanTurn = false;
+            if (this.computerBoard.getSpace(row,col).hitState === HIT_STATE_EMPTY) {
+                this.computerBoard.recieveAttack(row, col);
+                if (this.computerBoard.getSpace(row, col).hitState === HIT_STATE_MISS) {
+                    this.humanTurn = false;
+                }
             }
             this.nextMove();
         }

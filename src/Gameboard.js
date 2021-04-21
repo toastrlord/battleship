@@ -66,6 +66,7 @@ class Gameboard {
     recieveAttack(row, col) {
         const space = this.getSpace(row, col);
         space.onHit();
+        this.updateCallback();
         return (space.onHitCallback !== undefined);
     }
 

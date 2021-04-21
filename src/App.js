@@ -14,11 +14,21 @@ class App extends Component {
     }
   }
 
+  updateBoards(computerBoard, playerBoard) {
+    this.setState({
+      computerBoard: computerBoard,
+      playerBoard: playerBoard
+    });
+  }
+
   render() {
     const {gameState} = this.state;
     switch(gameState) {
       case PLAYING:
-        return <BoardComponent onClickCallback={this.props.makePlayerMove}></BoardComponent>;
+        return <div>
+          <BoardComponent board={this.props.playerBoard} />
+          <BoardComponent onClickCallback={this.props.makePlayerMove} board={this.props.computerBoard} />
+        </div>
       case GAME_OVER:
         return null;
       default:

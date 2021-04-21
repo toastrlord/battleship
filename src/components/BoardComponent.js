@@ -6,32 +6,25 @@ import { makeBattleship, DIRECTION_RIGHT, DIRECTION_DOWN, DIRECTION_LEFT, DIRECT
 class BoardComponent extends Component {
     constructor(props) {
         super(props);
-        const gameBoard = new Gameboard();
-        const battleship = makeBattleship(DIRECTION_UP, () => console.log('Battleship sunk!'));
-        gameBoard.addShip(battleship, 9, 9);
-
         this.state = {
-            board: gameBoard
+            spaces: this.props.board.spaces
         }
-
         this.onHit = this.onHit.bind(this);
+        this.props.board.updateCallback = this.onHit;
     }
-
-    onHit(row, col) {
-        const newBoard = Object.assign(this.state.board);
-        newBoard.recieveAttack(row, col);
-
+    
+    onHit() {
         this.setState({
-            board: newBoard,
+            spaces: this.props.board.spaces
         });
     }
 
     generateRow(row) {
-        const spaces = this.state.board.spaces;
+        const spaces = this.props.board.spaces;
         const onClickCallback = this.props.onClickCallback;
         return (<div className='row' key={row}>
             {spaces.slice(row * HEIGHT, row * HEIGHT + WIDTH).map((space, col) => {
-                return <SpaceComponent hitState={space.hitState} key={row * HEIGHT + col} onSpaceClicked={() => onClickCallback(row, col)}/>;
+                return <SpaceComponent hitState={space.hitState} key={row * HEIGHT + col} onSpaceClicked={this.props.onClickCallback ? () => onClickCallback(row, col) : () => null}/>;
             })}
         </div>);
     }
