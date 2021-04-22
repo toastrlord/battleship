@@ -1,13 +1,14 @@
 import { Component } from 'react';
 import SpaceComponent from './SpaceComponent';
 import {Gameboard, HEIGHT, WIDTH } from '../Gameboard';
-import { makeBattleship, DIRECTION_RIGHT, DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_UP } from '../Ship';
+import { HIT_STATE_REVEAL_SHIP, HIT_STATE_HIT } from '../Space';
 
 class BoardComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            spaces: this.props.board.spaces
+            spaces: this.props.board.spaces,
+            reveal: this.props.reveal
         }
         this.onHit = this.onHit.bind(this);
         this.props.board.updateCallback = this.onHit;
@@ -24,7 +25,10 @@ class BoardComponent extends Component {
         const onClickCallback = this.props.onClickCallback;
         return (<div className='row' key={row}>
             {spaces.slice(row * HEIGHT, row * HEIGHT + WIDTH).map((space, col) => {
-                return <SpaceComponent hitState={space.hitState} key={row * HEIGHT + col} onSpaceClicked={this.props.onClickCallback ? () => onClickCallback(row, col) : () => null}/>;
+                const showShip = this.props.reveal && this.props.board.getSpace(row, col).onHitCallback && space.hitState !== HIT_STATE_HIT;
+                return showShip ? 
+                <SpaceComponent hitState={HIT_STATE_REVEAL_SHIP} key={row * HEIGHT + col} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : () => null}/>
+                : <SpaceComponent hitState={space.hitState} key={row * HEIGHT + col} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : () => null}/>
             })}
         </div>);
     }
@@ -34,7 +38,7 @@ class BoardComponent extends Component {
         for (let i = 0; i < HEIGHT; i++) {
             rows.push(i);
         }
-        return (<div className='board-grid'>
+        return (<div className='board-grid' onMouseMove={this.props.onMouseMove}>
             {rows.map(row => {
                 return this.generateRow(row);
             })}

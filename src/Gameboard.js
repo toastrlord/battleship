@@ -15,38 +15,74 @@ class Gameboard {
         }
     }
 
-    addShip(ship, startRow, startCol) {
+    tryPlaceShip(row, col, ship) {
+        // return true if ship successfully placed, false otherwise
+        if (ship == null) {
+            return false;
+        }
         const facing = ship.facing;
+        console.log(facing);
         const size = ship.size;
         let shipSpaces = [];
+        let startRow = row;
+        let startCol = col;
         let rowDelta = 0;
         let colDelta = 0;
+        // if we're near an edge, adjust so we're in bounds
         switch(facing) {
             case DIRECTION_DOWN:
                 rowDelta = 1;
+                if (startRow + rowDelta * (size - 1) >= HEIGHT) {
+                    startRow = HEIGHT - (size);
+                }
                 // go from startRow down to startRow + (size - 1)
                 break;
             case DIRECTION_LEFT:
                 colDelta = -1;
+                if (startCol + colDelta * (size - 1) < 0) {
+                    startCol = WIDTH + (size - 1);
+                }
                 // go from startCol up to startCol - (size - 1)
                 break;
             case DIRECTION_RIGHT:
                 colDelta = 1;
+                if (startCol + colDelta * (size - 1) >= WIDTH) {
+                    startCol = WIDTH - (size);
+                }
                 // go from startCol up to startCol + (size - 1)
                 break;
             default:
                 rowDelta = -1;
+                if (startRow + rowDelta * (size - 1) < 0) {
+                    startRow = (size - 1);
+                    console.log(`New start row: ${startRow}`);
+                }
                 // go from startRow up to startRow - (size - 1)
         }
 
         for (let i = 0; i < size; i++) {
             const row = startRow + (i * rowDelta);
             const col = startCol + (i * colDelta);
-            if (col < 0 || col >= WIDTH || row < 0 || row >= HEIGHT) {
-                throw new Error(`Tried to place ship out of bounds! Row: ${row}, Col: ${col}`);
-            }
             shipSpaces = shipSpaces.concat({row, col});
         }
+
+        let validPlacement = true;
+        shipSpaces.forEach(({row, col}) => {
+            const currentSpace = this.getSpace(row, col);
+            if (currentSpace.onHitCallback) {
+                validPlacement = false;
+                return;
+            }
+        });
+
+        if (validPlacement) {
+            this.addShip(ship, shipSpaces);
+            this.updateCallback();
+        }
+        return validPlacement;
+    }
+
+    addShip(ship, shipSpaces) {
         shipSpaces.forEach(({row, col}, index) => {
             const currentSpace = this.getSpace(row, col);
             if (currentSpace.onHitCallback) {

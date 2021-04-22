@@ -1,5 +1,9 @@
 @import 'reset.css';
 
+.cursor-follow {
+    position: absolute;
+}
+
 .space {
     width: 25px;
     height: 25px;

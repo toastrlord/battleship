@@ -1,5 +1,5 @@
 import { Gameboard } from "./Gameboard";
-import App from './App';
+import { App, PLAYING, PLACING_SHIPS, GAME_OVER } from './App';
 import {WIDTH, HEIGHT} from './Gameboard';
 import { DIRECTION_RIGHT, makeBattleship } from "./Ship";
 import {HIT_STATE_EMPTY, HIT_STATE_MISS} from './Space';
@@ -17,16 +17,23 @@ function findRandomSpace(opposingBoard) {
 class Game {
     constructor() {
         const playerBoard = new Gameboard();
-        playerBoard.addShip(makeBattleship(DIRECTION_RIGHT), 0, 0);
         const computerBoard = new Gameboard();
-        computerBoard.addShip(makeBattleship(DIRECTION_RIGHT), 0, 0);
         this.playerBoard = playerBoard;
         this.computerBoard = computerBoard;
         this.currentPlayer = this.human;
-        this.gameOver = false;
+        this.gameState = PLACING_SHIPS;
         this.humanTurn = true;
         this.makePlayerMove = this.makePlayerMove.bind(this);
-        this.appComponent = <App makePlayerMove={this.makePlayerMove} playerBoard={this.playerBoard} computerBoard={this.computerBoard}/>;
+        this.appComponent = <App makePlayerMove={this.makePlayerMove} playerBoard={this.playerBoard} computerBoard={this.computerBoard} game={this} initialState={PLACING_SHIPS}/>;
+    }
+
+    changeState(newState) {
+        this.stateChangedCallback(newState);
+        this.gameState = newState;
+    }
+
+    startGame() {
+        this.changeState(PLAYING);
     }
 
     makePlayerMove(row, col) {
@@ -56,10 +63,12 @@ class Game {
     // TODO: place ships
         if (this.computerBoard.allShipsSunk()) {
             console.log("Player wins!");
+            this.changeState(GAME_OVER);
             return;
         } 
         if (this.playerBoard.allShipsSunk()) {
             console.log("Computer wins!");
+            this.changeState(GAME_OVER);
             return;
         }
         else {

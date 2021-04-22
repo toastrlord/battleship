@@ -1,6 +1,7 @@
 const HIT_STATE_EMPTY = 0;
 const HIT_STATE_HIT = 1;
 const HIT_STATE_MISS = 2;
+const HIT_STATE_REVEAL_SHIP = 3;
 
 class Space {
     constructor() {
@@ -23,4 +24,4 @@ class Space {
     }
 }
 
-export {HIT_STATE_EMPTY, HIT_STATE_HIT, HIT_STATE_MISS, Space};
+export {HIT_STATE_EMPTY, HIT_STATE_HIT, HIT_STATE_MISS, HIT_STATE_REVEAL_SHIP, Space};
