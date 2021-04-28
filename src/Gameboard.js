@@ -15,13 +15,9 @@ class Gameboard {
         }
     }
 
-    tryPlaceShip(row, col, ship) {
+    tryPlaceShip(row, col, shipConstructor, direction) {
+        const ship = shipConstructor(() => false);
         // return true if ship successfully placed, false otherwise
-        if (ship == null) {
-            return false;
-        }
-        const facing = ship.facing;
-        console.log(facing);
         const size = ship.size;
         let shipSpaces = [];
         let startRow = row;
@@ -29,7 +25,7 @@ class Gameboard {
         let rowDelta = 0;
         let colDelta = 0;
         // if we're near an edge, adjust so we're in bounds
-        switch(facing) {
+        switch(direction) {
             case DIRECTION_DOWN:
                 rowDelta = 1;
                 if (startRow + rowDelta * (size - 1) >= HEIGHT) {
@@ -77,7 +73,9 @@ class Gameboard {
 
         if (validPlacement) {
             this.addShip(ship, shipSpaces);
-            this.updateCallback();
+            if (this.updateCallback) {
+                this.updateCallback();
+            }
         }
         return validPlacement;
     }
@@ -107,16 +105,7 @@ class Gameboard {
     }
 
     allShipsSunk() {
-        let allSunk = true;
-        for (let i = 0; i < this.ships.length; i++) {
-            allSunk = allSunk && this.ships[i].isSunk();
-        }
-        return allSunk;
-        /*
-        return this.ships.reduce((prev, ship) => {
-            console.log(`${ship} Is sunk? ${ship.isSunk()}`);
-            return prev && ship.isSunk();
-        });*/
+        return this.ships.reduce((prev, ship) => prev && ship.isSunk(), true);
     }
 }
 

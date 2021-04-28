@@ -1,7 +1,7 @@
 import { Gameboard } from "./Gameboard";
 import { App, PLAYING, PLACING_SHIPS, GAME_OVER } from './App';
 import {WIDTH, HEIGHT} from './Gameboard';
-import { DIRECTION_RIGHT, makeBattleship } from "./Ship";
+import { makeBattleship, makePatrolBoat, makeSubmarine, makeDestroyer, makeCarrier } from "./Ship";
 import {HIT_STATE_EMPTY, HIT_STATE_MISS} from './Space';
 
 function findRandomSpace(opposingBoard) {
@@ -14,10 +14,25 @@ function findRandomSpace(opposingBoard) {
     return {row, col};
 }
 
+function placeShipsRandomly(board) {
+    let ships = [makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier];
+    ships.forEach(shipConstructor => {
+        let placed = false;
+        while (!placed) {
+            const row = Math.round(Math.random() * (HEIGHT - 1));
+            const col = Math.round(Math.random() * (WIDTH - 1));
+            const direction = Math.round(Math.random());
+            placed = board.tryPlaceShip(row, col, shipConstructor, direction);
+        }
+    });
+
+    return board;
+}
+
 class Game {
     constructor() {
         const playerBoard = new Gameboard();
-        const computerBoard = new Gameboard();
+        const computerBoard = placeShipsRandomly(new Gameboard());
         this.playerBoard = playerBoard;
         this.computerBoard = computerBoard;
         this.currentPlayer = this.human;
@@ -25,6 +40,8 @@ class Game {
         this.humanTurn = true;
         this.makePlayerMove = this.makePlayerMove.bind(this);
         this.appComponent = <App makePlayerMove={this.makePlayerMove} playerBoard={this.playerBoard} computerBoard={this.computerBoard} game={this} initialState={PLACING_SHIPS}/>;
+        
+        this.nextMove = this.nextMove.bind(this);
     }
 
     changeState(newState) {
@@ -33,11 +50,11 @@ class Game {
     }
 
     startGame() {
+        this.computerBoard = placeShipsRandomly(this.computerBoard);
         this.changeState(PLAYING);
     }
 
     makePlayerMove(row, col) {
-        console.log("Player moving");
         if (this.humanTurn) {
             if (this.computerBoard.getSpace(row,col).hitState === HIT_STATE_EMPTY) {
                 this.computerBoard.recieveAttack(row, col);
@@ -50,7 +67,6 @@ class Game {
     }
 
     makeComputerMove() {
-        console.log("Computer moving");
         const coords = findRandomSpace(this.playerBoard);
         const hit = this.playerBoard.recieveAttack(coords.row, coords.col);
         if (!hit) {

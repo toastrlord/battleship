@@ -16,7 +16,7 @@ function SpaceComponent(props) {
             return <div className={className + ' space'}/>;
         default:
             className = 'empty-square';
-            return <div className={className + ' space'} onClick={onSpaceClicked}/>;
+            return onSpaceClicked !== null ? <div className={className + ' space clickable'} onClick={onSpaceClicked}/> : <div className={className + ' space'} onClick={onSpaceClicked}/>;
     }
 }
 

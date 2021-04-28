@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 class PlaceShipComponent extends Component {
     render() {
         return (
-        <button active={this.props.active} onClick={this.props.onClick}>
+        <button disabled={this.props.disabled} onClick={this.props.onClick}>
             {this.props.shipName} 
         </button>);
     }

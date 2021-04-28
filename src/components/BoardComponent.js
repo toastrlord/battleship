@@ -14,6 +14,12 @@ class BoardComponent extends Component {
         this.props.board.updateCallback = this.onHit;
     }
     
+    componentDidUpdate(prevProps) {
+        if (prevProps.board !== this.props.board) {
+            this.props.board.updateCallback = this.onHit;
+        }
+    }
+    
     onHit() {
         this.setState({
             spaces: this.props.board.spaces
@@ -27,8 +33,8 @@ class BoardComponent extends Component {
             {spaces.slice(row * HEIGHT, row * HEIGHT + WIDTH).map((space, col) => {
                 const showShip = this.props.reveal && this.props.board.getSpace(row, col).onHitCallback && space.hitState !== HIT_STATE_HIT;
                 return showShip ? 
-                <SpaceComponent hitState={HIT_STATE_REVEAL_SHIP} key={row * HEIGHT + col} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : () => null}/>
-                : <SpaceComponent hitState={space.hitState} key={row * HEIGHT + col} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : () => null}/>
+                <SpaceComponent hitState={HIT_STATE_REVEAL_SHIP} key={row * HEIGHT + col} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : null}/>
+                : <SpaceComponent hitState={space.hitState} key={row * HEIGHT + col} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : null}/>
             })}
         </div>);
     }
@@ -39,6 +45,7 @@ class BoardComponent extends Component {
             rows.push(i);
         }
         return (<div className='board-grid' onMouseMove={this.props.onMouseMove}>
+            {this.props.title}
             {rows.map(row => {
                 return this.generateRow(row);
             })}

@@ -20,6 +20,9 @@
 
 .empty-square {
     background-color: blue;
+}
+
+.clickable {
     cursor: pointer;
 }
 
@@ -30,9 +33,25 @@
 .board-grid {
     display: flex;
     flex-direction: column;
+    text-align: center;
+    margin-left: 16px;
+    margin-right: 16px;
 }
 
 .row {
     display: flex;
     flex-direction: row;
+}
+
+.main-display {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.vertical-display {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }

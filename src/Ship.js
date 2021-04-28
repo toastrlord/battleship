@@ -10,10 +10,9 @@ const DIRECTION_DOWN = 2;
 const DIRECTION_LEFT = 3;
 
 class Ship {
-    constructor(size, facing, onSunk) {
+    constructor(size, onSunk) {
         this.sections = [];
         this.size = size;
-        this.facing = facing;
         this.onSunk = onSunk;
         for (let i = 0; i < size; i++) {
             this.sections.push(false);
@@ -34,24 +33,24 @@ class Ship {
     }
 }
 
-const makePatrolBoat = function(facing, onSunk) {
-    return new Ship(SIZE_PATROL_BOAT, facing, onSunk);
+const makePatrolBoat = function(onSunk) {
+    return new Ship(SIZE_PATROL_BOAT, onSunk);
 }
 
-const makeSubmarine = function(facing, onSunk) {
-    return new Ship(SIZE_SUBMARINE, facing, onSunk);
+const makeSubmarine = function(onSunk) {
+    return new Ship(SIZE_SUBMARINE, onSunk);
 }
 
-const makeDestroyer = function(facing, onSunk) {
-    return new Ship(SIZE_DESTROYER, facing, onSunk);
+const makeDestroyer = function(onSunk) {
+    return new Ship(SIZE_DESTROYER, onSunk);
 }
 
-const makeBattleship = function(facing, onSunk) {
-    return new Ship(SIZE_BATTLESHIP, facing, onSunk);
+const makeBattleship = function(onSunk) {
+    return new Ship(SIZE_BATTLESHIP, onSunk);
 }
 
-const makeCarrier = function(facing, onSunk) {
-    return new Ship(SIZE_CARRIER, facing, onSunk);
+const makeCarrier = function(onSunk) {
+    return new Ship(SIZE_CARRIER, onSunk);
 }
 
 export { DIRECTION_UP, DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT, makePatrolBoat, makeDestroyer, makeSubmarine, makeBattleship, makeCarrier }
