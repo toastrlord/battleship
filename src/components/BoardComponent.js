@@ -6,24 +6,20 @@ import { HIT_STATE_REVEAL_SHIP, HIT_STATE_HIT } from '../Space';
 class BoardComponent extends Component {
     constructor(props) {
         super(props);
+        
         this.state = {
-            spaces: this.props.board.spaces,
+            //spaces: this.props.board.spaces,
             reveal: this.props.reveal
         }
-        this.onHit = this.onHit.bind(this);
-        this.props.board.updateCallback = this.onHit;
+        //this.props.board.updateCallback = this.onHit;
     }
     
     componentDidUpdate(prevProps) {
+        /*
         if (prevProps.board !== this.props.board) {
             this.props.board.updateCallback = this.onHit;
         }
-    }
-    
-    onHit() {
-        this.setState({
-            spaces: this.props.board.spaces
-        });
+        */
     }
 
     generateRow(row) {

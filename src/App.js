@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import BoardComponent from "./components/BoardComponent";
 import PlaceShipComponent from "./components/PlaceShipComponent";
-import { placeShipsRandomly } from "./Game";
 import { DIRECTION_UP, DIRECTION_RIGHT, makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier } from "./Ship";
 
 const PLACING_SHIPS = 0;
@@ -13,7 +12,7 @@ class App extends Component {
     super(props);
 
     this.state = {
-      gameState: this.props.initialState,
+      gameState: this.props.game.gameState,
       currentShip: null,
       direction: DIRECTION_UP,
       ships: {
@@ -26,7 +25,7 @@ class App extends Component {
     }
 
     this.floatingShipRef = React.createRef();
-
+    console.log(`Player board: ${this.props.game.getPlayerBoard()}`);
     this.onGameStateChanged = this.onGameStateChanged.bind(this);
     this.rotate = this.rotate.bind(this);
     this.shipPlaced = this.shipPlaced.bind(this);
@@ -34,9 +33,24 @@ class App extends Component {
   }
 
   onGameStateChanged(newState) {
-    this.setState({
-      gameState: newState
-    });
+    if (newState === PLACING_SHIPS) {
+      this.setState({
+        gameState: newState,
+        currentShip: null,
+        ships: {
+          'PT BOAT': { constructor: makePatrolBoat, placed: false},
+          'DESTROYER': { constructor: makeDestroyer, placed: false},
+          'SUBMARINE': { constructor: makeSubmarine, placed: false},
+          'BATTLESHIP': { constructor: makeBattleship, placed: false},
+          'CARRIER': { constructor: makeCarrier, placed: false},
+        },
+      })
+    }
+    else {
+      this.setState({
+        gameState: newState
+      });
+    }
   }
 
   setCurrentShip(ship) {
@@ -82,45 +96,37 @@ class App extends Component {
   }
 
   render() {
-    const {gameState} = this.state;
+    const {gameState, ships, currentShip} = this.state;
+    const {game} = this.props;
     switch(gameState) {
       case PLACING_SHIPS:
         return <div className='vertical-display'>
           <div>
             <button onClick={this.rotate}>Rotate</button>
-            <PlaceShipComponent shipName='PT Boat' onClick={() => this.setCurrentShip('PT BOAT')} disabled={this.state.ships['PT BOAT'].placed}/>
-            <PlaceShipComponent shipName='Submarine' onClick={() => this.setCurrentShip('SUBMARINE')} disabled={this.state.ships['SUBMARINE'].placed}/>
-            <PlaceShipComponent shipName='Destroyer' onClick={() => this.setCurrentShip('DESTROYER')} disabled={this.state.ships['DESTROYER'].placed}/>
-            <PlaceShipComponent shipName='Battleship' onClick={() => this.setCurrentShip('BATTLESHIP')} disabled={this.state.ships['BATTLESHIP'].placed}/>
-            <PlaceShipComponent shipName='Carrier' onClick={() => this.setCurrentShip('CARRIER')} disabled={this.state.ships['CARRIER'].placed}/>
+            <PlaceShipComponent shipName='PT Boat' onClick={() => this.setCurrentShip('PT BOAT')} disabled={ships['PT BOAT'].placed}/>
+            <PlaceShipComponent shipName='Submarine' onClick={() => this.setCurrentShip('SUBMARINE')} disabled={ships['SUBMARINE'].placed}/>
+            <PlaceShipComponent shipName='Destroyer' onClick={() => this.setCurrentShip('DESTROYER')} disabled={ships['DESTROYER'].placed}/>
+            <PlaceShipComponent shipName='Battleship' onClick={() => this.setCurrentShip('BATTLESHIP')} disabled={ships['BATTLESHIP'].placed}/>
+            <PlaceShipComponent shipName='Carrier' onClick={() => this.setCurrentShip('CARRIER')} disabled={ships['CARRIER'].placed}/>
           </div>
-          <BoardComponent board={this.props.playerBoard} reveal={true} onMouseMove={(e) => {
-            if (this.floatingShipRef.current != null) {
-              const el = this.floatingShipRef.current;
-              const offsetX = e.pageX;
-              const offsetY = e.pageY;
-              el.style = {
-                left: `${offsetX} px`,
-                top: `${offsetY} px`
-              };
-            }
-          }} onClickCallback={(row, col) => {
-            if (this.state.currentShip) {
-              const result = this.props.playerBoard.tryPlaceShip(row, col, this.state.ships[this.state.currentShip].constructor, this.state.direction);
+          <BoardComponent board={game.getPlayerBoard()} reveal={true} onClickCallback={(row, col) => {
+            if (currentShip) {
+              const result = game.getPlayerBoard().tryPlaceShip(row, col, ships[currentShip].constructor, this.state.direction);
               if (result) {
-                this.shipPlaced(this.state.currentShip);
+                this.shipPlaced(currentShip);
               }
           }}}/>
         </div>;
       case PLAYING:
         return <div className='main-display'>
-          <BoardComponent title='Your Board' board={this.props.playerBoard} reveal={true}/>
-          <BoardComponent title='Opponent Board' onClickCallback={this.props.makePlayerMove} board={this.props.computerBoard} reveal={false}/>
+          <BoardComponent title='Your Board' board={game.getPlayerBoard()} reveal={true}/>
+          <BoardComponent title='Opponent Board' onClickCallback={this.props.makePlayerMove} board={game.getComputerBoard()} reveal={false}/>
         </div>
       case GAME_OVER:
         return <div className='main-display'>
-          <BoardComponent title='Your Board' board={this.props.playerBoard} reveal={true}/>
-          <BoardComponent title='Opponent Board' onClickCallback={this.props.makePlayerMove} board={this.props.computerBoard} reveal={true}/>
+          <BoardComponent title='Your Board' board={game.getPlayerBoard()} reveal={true}/>
+          <BoardComponent title='Opponent Board' onClickCallback={this.props.makePlayerMove} board={game.getComputerBoard()} reveal={true}/>
+          <button onClick={() => this.props.game.reset()}>Play Again?</button>
         </div>;
       default:
         return null;

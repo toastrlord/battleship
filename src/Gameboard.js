@@ -73,9 +73,6 @@ class Gameboard {
 
         if (validPlacement) {
             this.addShip(ship, shipSpaces);
-            if (this.updateCallback) {
-                this.updateCallback();
-            }
         }
         return validPlacement;
     }
@@ -91,6 +88,10 @@ class Gameboard {
             });
         });
         this.ships.push(ship);
+
+        const newBoard = Object.assign(this);
+        newBoard.ships.push(ship);
+        return newBoard;
     }
 
     getSpace(row, col) {
@@ -100,8 +101,8 @@ class Gameboard {
     recieveAttack(row, col) {
         const space = this.getSpace(row, col);
         space.onHit();
-        this.updateCallback();
-        return (space.onHitCallback !== undefined);
+        const newBoard = Object.assign(this);
+        return newBoard;
     }
 
     allShipsSunk() {

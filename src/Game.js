@@ -39,7 +39,6 @@ class Game {
         this.gameState = PLACING_SHIPS;
         this.humanTurn = true;
         this.makePlayerMove = this.makePlayerMove.bind(this);
-        this.appComponent = <App makePlayerMove={this.makePlayerMove} playerBoard={this.playerBoard} computerBoard={this.computerBoard} game={this} initialState={PLACING_SHIPS}/>;
         
         this.nextMove = this.nextMove.bind(this);
     }
@@ -54,13 +53,20 @@ class Game {
         this.changeState(PLAYING);
     }
 
+    reset() {
+        this.playerBoard = new Gameboard();
+        this.computerBoard = placeShipsRandomly(new Gameboard());
+        this.changeState(PLACING_SHIPS);
+    }
+
     makePlayerMove(row, col) {
         if (this.humanTurn) {
             if (this.computerBoard.getSpace(row,col).hitState === HIT_STATE_EMPTY) {
-                this.computerBoard.recieveAttack(row, col);
+                const result = this.computerBoard.recieveAttack(row, col);
                 if (this.computerBoard.getSpace(row, col).hitState === HIT_STATE_MISS) {
                     this.humanTurn = false;
                 }
+                this.computerBoard = result;
             }
             this.nextMove();
         }
@@ -68,15 +74,23 @@ class Game {
 
     makeComputerMove() {
         const coords = findRandomSpace(this.playerBoard);
-        const hit = this.playerBoard.recieveAttack(coords.row, coords.col);
-        if (!hit) {
+        const result = this.playerBoard.recieveAttack(coords.row, coords.col);
+        if (this.computerplayerBoard.getSpace(coords.row, coords.col).hitState === HIT_STATE_MISS) {
             this.humanTurn = true;
         }
+        this.playerBoard = result;
         this.nextMove();
     }
 
+    getPlayerBoard() {
+        return this.playerBoard;
+    }
+
+    getComputerBoard() {
+        return this.computerBoard;
+    }
+
     nextMove() {
-    // TODO: place ships
         if (this.computerBoard.allShipsSunk()) {
             console.log("Player wins!");
             this.changeState(GAME_OVER);
