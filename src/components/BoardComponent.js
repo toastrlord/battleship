@@ -6,20 +6,20 @@ import { HIT_STATE_REVEAL_SHIP, HIT_STATE_HIT } from '../Space';
 class BoardComponent extends Component {
     constructor(props) {
         super(props);
-        
+        this.updateBoard = this.updateBoard.bind(this);
+
+        this.props.board.updateCallback = this.updateBoard;
+
         this.state = {
-            //spaces: this.props.board.spaces,
+            board: this.props.board,
             reveal: this.props.reveal
         }
-        //this.props.board.updateCallback = this.onHit;
     }
     
     componentDidUpdate(prevProps) {
-        /*
         if (prevProps.board !== this.props.board) {
-            this.props.board.updateCallback = this.onHit;
+            this.props.board.updateCallback = this.updateBoard;
         }
-        */
     }
 
     generateRow(row) {
@@ -33,6 +33,21 @@ class BoardComponent extends Component {
                 : <SpaceComponent hitState={space.hitState} key={row * HEIGHT + col} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : null}/>
             })}
         </div>);
+    }
+
+    updateBoard(newBoard) {
+        this.setState({
+            board: newBoard,
+        });
+        //this.props.updateBoardCallback(newBoard);
+    }
+
+    componentWillUnmount() {
+        const newBoard = Object.assign(this.state.board);
+        newBoard.updateCallback = null;
+        this.setState({
+            board: newBoard
+        })
     }
 
     render() {

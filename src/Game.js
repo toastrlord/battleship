@@ -3,16 +3,7 @@ import { App, PLAYING, PLACING_SHIPS, GAME_OVER } from './App';
 import {WIDTH, HEIGHT} from './Gameboard';
 import { makeBattleship, makePatrolBoat, makeSubmarine, makeDestroyer, makeCarrier } from "./Ship";
 import {HIT_STATE_EMPTY, HIT_STATE_MISS} from './Space';
-
-function findRandomSpace(opposingBoard) {
-    let row;
-    let col;
-    do { // keep trying until we find a space that hasn't been hit
-        row = Math.round(Math.random() * (HEIGHT - 1));
-        col = Math.round(Math.random() * (WIDTH - 1));
-    } while (opposingBoard.getSpace(row, col).hitState !== HIT_STATE_EMPTY);
-    return {row, col};
-}
+import ComputerPlayer from "./ComputerPlayer";
 
 function placeShipsRandomly(board) {
     let ships = [makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier];
@@ -38,6 +29,7 @@ class Game {
         this.currentPlayer = this.human;
         this.gameState = PLACING_SHIPS;
         this.humanTurn = true;
+        this.computerPlayer = new ComputerPlayer(playerBoard);
         this.makePlayerMove = this.makePlayerMove.bind(this);
         
         this.nextMove = this.nextMove.bind(this);
@@ -56,6 +48,7 @@ class Game {
     reset() {
         this.playerBoard = new Gameboard();
         this.computerBoard = placeShipsRandomly(new Gameboard());
+        this.humanTurn = true;
         this.changeState(PLACING_SHIPS);
     }
 
@@ -70,24 +63,6 @@ class Game {
             }
             this.nextMove();
         }
-    }
-
-    makeComputerMove() {
-        const coords = findRandomSpace(this.playerBoard);
-        const result = this.playerBoard.recieveAttack(coords.row, coords.col);
-        if (this.computerplayerBoard.getSpace(coords.row, coords.col).hitState === HIT_STATE_MISS) {
-            this.humanTurn = true;
-        }
-        this.playerBoard = result;
-        this.nextMove();
-    }
-
-    getPlayerBoard() {
-        return this.playerBoard;
-    }
-
-    getComputerBoard() {
-        return this.computerBoard;
     }
 
     nextMove() {
@@ -106,7 +81,11 @@ class Game {
                 // wait for player input
             }
             else {
-                this.makeComputerMove();
+                const result = this.computerPlayer.makeMove();
+                if (!result) {
+                    this.humanTurn = true;
+                }
+                this.nextMove();
             }
         }    
     }

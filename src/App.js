@@ -25,7 +25,6 @@ class App extends Component {
     }
 
     this.floatingShipRef = React.createRef();
-    console.log(`Player board: ${this.props.game.getPlayerBoard()}`);
     this.onGameStateChanged = this.onGameStateChanged.bind(this);
     this.rotate = this.rotate.bind(this);
     this.shipPlaced = this.shipPlaced.bind(this);
@@ -109,9 +108,9 @@ class App extends Component {
             <PlaceShipComponent shipName='Battleship' onClick={() => this.setCurrentShip('BATTLESHIP')} disabled={ships['BATTLESHIP'].placed}/>
             <PlaceShipComponent shipName='Carrier' onClick={() => this.setCurrentShip('CARRIER')} disabled={ships['CARRIER'].placed}/>
           </div>
-          <BoardComponent board={game.getPlayerBoard()} reveal={true} onClickCallback={(row, col) => {
+          <BoardComponent board={game.playerBoard} reveal={true} onClickCallback={(row, col) => {
             if (currentShip) {
-              const result = game.getPlayerBoard().tryPlaceShip(row, col, ships[currentShip].constructor, this.state.direction);
+              const result = game.playerBoard.tryPlaceShip(row, col, ships[currentShip].constructor, this.state.direction);
               if (result) {
                 this.shipPlaced(currentShip);
               }
@@ -119,13 +118,13 @@ class App extends Component {
         </div>;
       case PLAYING:
         return <div className='main-display'>
-          <BoardComponent title='Your Board' board={game.getPlayerBoard()} reveal={true}/>
-          <BoardComponent title='Opponent Board' onClickCallback={this.props.makePlayerMove} board={game.getComputerBoard()} reveal={false}/>
+          <BoardComponent title='Your Board' board={game.playerBoard} reveal={true}/>
+          <BoardComponent title='Opponent Board' onClickCallback={game.makePlayerMove} board={game.computerBoard} reveal={false}/>
         </div>
       case GAME_OVER:
         return <div className='main-display'>
-          <BoardComponent title='Your Board' board={game.getPlayerBoard()} reveal={true}/>
-          <BoardComponent title='Opponent Board' onClickCallback={this.props.makePlayerMove} board={game.getComputerBoard()} reveal={true}/>
+          <BoardComponent title='Your Board' board={game.playerBoard} reveal={true}/>
+          <BoardComponent title='Opponent Board' onClickCallback={game.makePlayerMove} board={game.computerBoard} reveal={true}/>
           <button onClick={() => this.props.game.reset()}>Play Again?</button>
         </div>;
       default:

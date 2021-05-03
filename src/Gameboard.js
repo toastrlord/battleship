@@ -51,7 +51,6 @@ class Gameboard {
                 rowDelta = -1;
                 if (startRow + rowDelta * (size - 1) < 0) {
                     startRow = (size - 1);
-                    console.log(`New start row: ${startRow}`);
                 }
                 // go from startRow up to startRow - (size - 1)
         }
@@ -91,6 +90,9 @@ class Gameboard {
 
         const newBoard = Object.assign(this);
         newBoard.ships.push(ship);
+        if (this.updateCallback) {
+            this.updateCallback(newBoard);
+        }
         return newBoard;
     }
 
@@ -102,6 +104,7 @@ class Gameboard {
         const space = this.getSpace(row, col);
         space.onHit();
         const newBoard = Object.assign(this);
+        this.updateCallback(newBoard);
         return newBoard;
     }
 
