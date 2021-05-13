@@ -1,5 +1,5 @@
 import { Gameboard } from "./Gameboard";
-import { App, PLAYING, PLACING_SHIPS, GAME_OVER } from './App';
+import { PLAYING, PLACING_SHIPS, GAME_OVER } from './App';
 import {WIDTH, HEIGHT} from './Gameboard';
 import { makeBattleship, makePatrolBoat, makeSubmarine, makeDestroyer, makeCarrier } from "./Ship";
 import {HIT_STATE_EMPTY, HIT_STATE_MISS} from './Space';
@@ -36,8 +36,8 @@ class Game {
     }
 
     changeState(newState) {
-        this.stateChangedCallback(newState);
         this.gameState = newState;
+        this.stateChangedCallback(this);
     }
 
     startGame() {
@@ -88,6 +88,14 @@ class Game {
                 this.nextMove();
             }
         }    
+    }
+
+    getComputerBoard() {
+        return this.computerBoard;
+    }
+
+    getPlayerBoard() {
+        return this.playerBoard;
     }
 }
 

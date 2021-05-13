@@ -1,7 +1,8 @@
-import React, { Component } from "react";
-import BoardComponent from "./components/BoardComponent";
-import PlaceShipComponent from "./components/PlaceShipComponent";
-import { DIRECTION_UP, DIRECTION_RIGHT, makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier } from "./Ship";
+import React, { Component } from 'react';
+import Game from './Game';
+import BoardComponent from './components/BoardComponent';
+import PlaceShipComponent from './components/PlaceShipComponent';
+import { DIRECTION_UP, DIRECTION_RIGHT, makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier } from './Ship';
 
 const PLACING_SHIPS = 0;
 const PLAYING = 1;
@@ -10,9 +11,16 @@ const GAME_OVER = 2;
 class App extends Component {
   constructor(props) {
     super(props);
+    this.onGameStateChanged = this.onGameStateChanged.bind(this);
+    this.rotate = this.rotate.bind(this);
+    this.shipPlaced = this.shipPlaced.bind(this);
+    this.reset = this.reset.bind(this);
 
+    const game = new Game();
+    game.stateChangedCallback = this.onGameStateChanged;
     this.state = {
-      gameState: this.props.game.gameState,
+      game: game,
+      gameState: game.gameState,
       currentShip: null,
       direction: DIRECTION_UP,
       ships: {
@@ -25,15 +33,13 @@ class App extends Component {
     }
 
     this.floatingShipRef = React.createRef();
-    this.onGameStateChanged = this.onGameStateChanged.bind(this);
-    this.rotate = this.rotate.bind(this);
-    this.shipPlaced = this.shipPlaced.bind(this);
-    this.props.game.stateChangedCallback = this.onGameStateChanged; 
   }
 
-  onGameStateChanged(newState) {
+  onGameStateChanged(newGame) {
+    const newState = newGame.gameState;
     if (newState === PLACING_SHIPS) {
       this.setState({
+        game: newGame,
         gameState: newState,
         currentShip: null,
         ships: {
@@ -94,9 +100,14 @@ class App extends Component {
     }
   }
 
+  reset() {
+    const game = new Game();
+    game.stateChangedCallback = this.onGameStateChanged;
+    this.onGameStateChanged(game);
+  }
+
   render() {
-    const {gameState, ships, currentShip} = this.state;
-    const {game} = this.props;
+    const {gameState, ships, currentShip, game} = this.state;
     switch(gameState) {
       case PLACING_SHIPS:
         return <div className='vertical-display'>
@@ -108,27 +119,28 @@ class App extends Component {
             <PlaceShipComponent shipName='Battleship' onClick={() => this.setCurrentShip('BATTLESHIP')} disabled={ships['BATTLESHIP'].placed}/>
             <PlaceShipComponent shipName='Carrier' onClick={() => this.setCurrentShip('CARRIER')} disabled={ships['CARRIER'].placed}/>
           </div>
-          <BoardComponent board={game.playerBoard} reveal={true} onClickCallback={(row, col) => {
+          <BoardComponent board={game.getPlayerBoard()} reveal={true} onClickCallback={(row, col) => {
             if (currentShip) {
               const result = game.playerBoard.tryPlaceShip(row, col, ships[currentShip].constructor, this.state.direction);
               if (result) {
                 this.shipPlaced(currentShip);
               }
-          }}}/>
+          }}}/> 
         </div>;
       case PLAYING:
         return <div className='main-display'>
-          <BoardComponent title='Your Board' board={game.playerBoard} reveal={true}/>
+          <BoardComponent title='Your Board' board={game.getPlayerBoard()} reveal={true}/>
           <BoardComponent title='Opponent Board' onClickCallback={game.makePlayerMove} board={game.computerBoard} reveal={false}/>
         </div>
       case GAME_OVER:
         return <div className='main-display'>
-          <BoardComponent title='Your Board' board={game.playerBoard} reveal={true}/>
-          <BoardComponent title='Opponent Board' onClickCallback={game.makePlayerMove} board={game.computerBoard} reveal={true}/>
-          <button onClick={() => this.props.game.reset()}>Play Again?</button>
+          <BoardComponent title='Your Board' board={game.getPlayerBoard()} reveal={true}/>
+          <BoardComponent title='Opponent Board' board={game.computerBoard} reveal={true}/>
+          <button onClick={() => this.reset()}>Play Again?</button>
         </div>;
       default:
-        return null;
+        console.log(`no match for game state: ${gameState}`);
+        return null; 
     }
   }
 }

@@ -14,8 +14,4 @@ class HumanPlayer {
     }
 }
 
-function makePlayer(opposingBoard, strategy) {
-    return () => strategy(opposingBoard);
-}
-
 export default HumanPlayer;

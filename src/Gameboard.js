@@ -104,6 +104,8 @@ class Gameboard {
         const space = this.getSpace(row, col);
         space.onHit();
         const newBoard = Object.assign(this);
+        console.log(this.updateCallback);
+        console.log(this);
         this.updateCallback(newBoard);
         return newBoard;
     }

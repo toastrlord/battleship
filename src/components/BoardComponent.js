@@ -1,17 +1,15 @@
 import { Component } from 'react';
 import SpaceComponent from './SpaceComponent';
-import {Gameboard, HEIGHT, WIDTH } from '../Gameboard';
+import {HEIGHT, WIDTH } from '../Gameboard';
 import { HIT_STATE_REVEAL_SHIP, HIT_STATE_HIT } from '../Space';
 
 class BoardComponent extends Component {
     constructor(props) {
         super(props);
         this.updateBoard = this.updateBoard.bind(this);
-
         this.props.board.updateCallback = this.updateBoard;
 
         this.state = {
-            board: this.props.board,
             reveal: this.props.reveal
         }
     }
@@ -39,9 +37,9 @@ class BoardComponent extends Component {
         this.setState({
             board: newBoard,
         });
-        //this.props.updateBoardCallback(newBoard);
     }
-
+    
+    
     componentWillUnmount() {
         const newBoard = Object.assign(this.state.board);
         newBoard.updateCallback = null;
