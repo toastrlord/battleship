@@ -2,10 +2,17 @@ import React, {Component} from 'react';
 
 class PlaceShipComponent extends Component {
     render() {
+        const spaces = [];
+        for (let i = 0; i < this.props.shipSize; i++) {
+            spaces.push(<div className='space ship-square' key={i}></div>);
+        }
         return (
-        <button disabled={this.props.disabled} onClick={this.props.onClick}>
-            {this.props.shipName} 
-        </button>);
+        <div>
+            <div>{this.props.shipName}</div>
+            <div draggable={true}>
+                {spaces}
+            </div>
+        </div>);
     }
 
 }

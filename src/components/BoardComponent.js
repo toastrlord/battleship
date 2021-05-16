@@ -21,14 +21,13 @@ class BoardComponent extends Component {
     }
 
     generateRow(row) {
+        const {onClickCallback, onDragEnd} = this.props;
         const spaces = this.props.board.spaces;
-        const onClickCallback = this.props.onClickCallback;
         return (<div className='row' key={row}>
             {spaces.slice(row * HEIGHT, row * HEIGHT + WIDTH).map((space, col) => {
                 const showShip = this.props.reveal && this.props.board.getSpace(row, col).onHitCallback && space.hitState !== HIT_STATE_HIT;
-                return showShip ? 
-                <SpaceComponent hitState={HIT_STATE_REVEAL_SHIP} key={row * HEIGHT + col} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : null}/>
-                : <SpaceComponent hitState={space.hitState} key={row * HEIGHT + col} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : null}/>
+                const hitState = showShip ? HIT_STATE_REVEAL_SHIP : space.hitState;
+                return <SpaceComponent hitState={hitState} key={row * HEIGHT + col} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : null} onMouseUp={onDragEnd ? () => onDragEnd(row, col) : null}/>
             })}
         </div>);
     }

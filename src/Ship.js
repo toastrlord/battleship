@@ -53,4 +53,4 @@ const makeCarrier = function(onSunk) {
     return new Ship(SIZE_CARRIER, onSunk);
 }
 
-export { DIRECTION_UP, DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT, makePatrolBoat, makeDestroyer, makeSubmarine, makeBattleship, makeCarrier }
+export { DIRECTION_UP, DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT, makePatrolBoat, makeDestroyer, makeSubmarine, makeBattleship, makeCarrier, SIZE_BATTLESHIP, SIZE_CARRIER, SIZE_SUBMARINE, SIZE_DESTROYER, SIZE_PATROL_BOAT }

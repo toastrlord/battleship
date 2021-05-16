@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Game from './Game';
 import BoardComponent from './components/BoardComponent';
 import PlaceShipComponent from './components/PlaceShipComponent';
-import { DIRECTION_UP, DIRECTION_RIGHT, makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier } from './Ship';
+import { DIRECTION_UP, DIRECTION_RIGHT, makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier, SIZE_PATROL_BOAT, SIZE_SUBMARINE, SIZE_DESTROYER, SIZE_BATTLESHIP, SIZE_CARRIER } from './Ship';
 
 const PLACING_SHIPS = 0;
 const PLAYING = 1;
@@ -59,7 +59,13 @@ class App extends Component {
   }
 
   setCurrentShip(ship) {
-    if (!this.state.ships[ship].placed) {
+    console.log(`Set current ship ${ship}`);
+    if (ship === '') {
+      this.setState({
+        currentShip: null,
+      })
+    }
+    else if (!this.state.ships[ship].placed) {
       this.setState({
         currentShip: ship,
       });
@@ -110,16 +116,48 @@ class App extends Component {
     const {gameState, ships, currentShip, game} = this.state;
     switch(gameState) {
       case PLACING_SHIPS:
-        return <div className='vertical-display'>
+        return <div className='vertical-display' 
+        onDrag={(e) => {
+
+        }}
+        onDragStart={(e) => {
+          console.log('drag start!');
+          this.floatingShipRef = e.target;
+          e.target.style.opacity = 0.5;
+        }} 
+        onDragEnd={(e) => {
+          e.target.style.opacity = '';
+          this.floatingShipRef = null;
+        }} 
+        onDragOver={(e) => {
+        }} 
+        onDragEnter={(e) => {
+          e.preventDefault();
+          if (e.target.classList.contains('empty-square')) {
+            e.target.style.opacity = 0.5;
+          }
+        }} 
+        onDragLeave={(e) => {
+          if (e.target.classList.contains('empty-square')) {
+            e.target.style.opacity = '';
+          }
+        }} 
+        onDrop={(e) => {
+          e.preventDefault();
+          if (e.target.classList.contains('empty-square')) {
+            // do drop logic here
+          }
+        }}>
           <div>
             <button onClick={this.rotate}>Rotate</button>
-            <PlaceShipComponent shipName='PT Boat' onClick={() => this.setCurrentShip('PT BOAT')} disabled={ships['PT BOAT'].placed}/>
-            <PlaceShipComponent shipName='Submarine' onClick={() => this.setCurrentShip('SUBMARINE')} disabled={ships['SUBMARINE'].placed}/>
-            <PlaceShipComponent shipName='Destroyer' onClick={() => this.setCurrentShip('DESTROYER')} disabled={ships['DESTROYER'].placed}/>
-            <PlaceShipComponent shipName='Battleship' onClick={() => this.setCurrentShip('BATTLESHIP')} disabled={ships['BATTLESHIP'].placed}/>
-            <PlaceShipComponent shipName='Carrier' onClick={() => this.setCurrentShip('CARRIER')} disabled={ships['CARRIER'].placed}/>
+            <PlaceShipComponent shipName='PT Boat' shipSize={SIZE_PATROL_BOAT} disabled={ships['PT BOAT'].placed}/>
+            <PlaceShipComponent shipName='Submarine' shipSize={SIZE_SUBMARINE} disabled={ships['SUBMARINE'].placed}/>
+            <PlaceShipComponent shipName='Destroyer' shipSize={SIZE_DESTROYER} disabled={ships['DESTROYER'].placed}/>
+            <PlaceShipComponent shipName='Battleship' shipSize={SIZE_BATTLESHIP}  disabled={ships['BATTLESHIP'].placed}/>
+            <PlaceShipComponent shipName='Carrier' shipSize={SIZE_CARRIER} disabled={ships['CARRIER'].placed}/>
           </div>
-          <BoardComponent board={game.getPlayerBoard()} reveal={true} onClickCallback={(row, col) => {
+          <BoardComponent board={game.getPlayerBoard()} reveal={true} onDragEnd={(row, col) => {
+            console.log('drag ended');
             if (currentShip) {
               const result = game.playerBoard.tryPlaceShip(row, col, ships[currentShip].constructor, this.state.direction);
               if (result) {
