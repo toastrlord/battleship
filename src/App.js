@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Game from './Game';
 import BoardComponent from './components/BoardComponent';
 import PlaceShipComponent from './components/PlaceShipComponent';
-import { DIRECTION_UP, DIRECTION_RIGHT, makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier, SIZE_PATROL_BOAT, SIZE_SUBMARINE, SIZE_DESTROYER, SIZE_BATTLESHIP, SIZE_CARRIER } from './Ship';
+import { DIRECTION_DOWN, DIRECTION_RIGHT, makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier, SIZE_PATROL_BOAT, SIZE_SUBMARINE, SIZE_DESTROYER, SIZE_BATTLESHIP, SIZE_CARRIER, DIRECTION_UP } from './Ship';
 
 const PLACING_SHIPS = 0;
 const PLAYING = 1;
@@ -22,7 +22,9 @@ class App extends Component {
       game: game,
       gameState: game.gameState,
       currentShip: null,
-      direction: DIRECTION_UP,
+      startIndex: null,
+      shipSize: null,
+      direction: DIRECTION_DOWN,
       ships: {
         'PT BOAT': { constructor: makePatrolBoat, placed: false},
         'DESTROYER': { constructor: makeDestroyer, placed: false},
@@ -58,29 +60,32 @@ class App extends Component {
     }
   }
 
-  setCurrentShip(ship) {
-    console.log(`Set current ship ${ship}`);
+  setCurrentShip(ship, i, shipSize) {
     if (ship === '') {
       this.setState({
         currentShip: null,
+        startIndex: null,
+        shipSize: null
       })
     }
     else if (!this.state.ships[ship].placed) {
       this.setState({
         currentShip: ship,
+        startIndex: i,
+        shipSize: shipSize
       });
     }
   }
 
   rotate() {
-    if (this.state.direction === DIRECTION_UP) {
+    if (this.state.direction === DIRECTION_DOWN) {
         this.setState({
           direction: DIRECTION_RIGHT
       });
     }
     else {
         this.setState({
-          direction: DIRECTION_UP
+          direction: DIRECTION_DOWN
         });
     }
   }
@@ -113,7 +118,9 @@ class App extends Component {
   }
 
   render() {
-    const {gameState, ships, currentShip, game} = this.state;
+    const {gameState, ships, currentShip, game, direction, startIndex, shipSize} = this.state;
+    const flexDirection = direction === DIRECTION_DOWN ? 'column' : 'row';
+    const flexContainerDirection = flexDirection === 'column' ? 'row' : 'column';
     switch(gameState) {
       case PLACING_SHIPS:
         return <div className='vertical-display' 
@@ -121,7 +128,6 @@ class App extends Component {
 
         }}
         onDragStart={(e) => {
-          console.log('drag start!');
           this.floatingShipRef = e.target;
           e.target.style.opacity = 0.5;
         }} 
@@ -131,15 +137,9 @@ class App extends Component {
         }} 
         onDragOver={(e) => {
         }} 
-        onDragEnter={(e) => {
-          e.preventDefault();
-          if (e.target.classList.contains('empty-square')) {
-            e.target.style.opacity = 0.5;
-          }
-        }} 
         onDragLeave={(e) => {
           if (e.target.classList.contains('empty-square')) {
-            e.target.style.opacity = '';
+            //e.target.style.opacity = '';
           }
         }} 
         onDrop={(e) => {
@@ -150,19 +150,22 @@ class App extends Component {
         }}>
           <div>
             <button onClick={this.rotate}>Rotate</button>
-            <PlaceShipComponent shipName='PT Boat' shipSize={SIZE_PATROL_BOAT} disabled={ships['PT BOAT'].placed}/>
-            <PlaceShipComponent shipName='Submarine' shipSize={SIZE_SUBMARINE} disabled={ships['SUBMARINE'].placed}/>
-            <PlaceShipComponent shipName='Destroyer' shipSize={SIZE_DESTROYER} disabled={ships['DESTROYER'].placed}/>
-            <PlaceShipComponent shipName='Battleship' shipSize={SIZE_BATTLESHIP}  disabled={ships['BATTLESHIP'].placed}/>
-            <PlaceShipComponent shipName='Carrier' shipSize={SIZE_CARRIER} disabled={ships['CARRIER'].placed}/>
+            <div style={{flexDirection: flexContainerDirection, display: 'flex'}}>
+              <PlaceShipComponent shipName='PT Boat' dragStart={(i) => { this.setCurrentShip('PT BOAT', i, SIZE_PATROL_BOAT)}} shipSize={SIZE_PATROL_BOAT} disabled={ships['PT BOAT'].placed} flexDirection={flexDirection}/>
+              <PlaceShipComponent shipName='Submarine' dragStart={(i) => { this.setCurrentShip('SUBMARINE', i, SIZE_SUBMARINE)}} shipSize={SIZE_SUBMARINE} disabled={ships['SUBMARINE'].placed} flexDirection={flexDirection}/>
+              <PlaceShipComponent shipName='Destroyer' dragStart={(i) => { this.setCurrentShip('DESTROYER', i, SIZE_DESTROYER)}} shipSize={SIZE_DESTROYER} disabled={ships['DESTROYER'].placed} flexDirection={flexDirection}/>
+              <PlaceShipComponent shipName='Battleship' dragStart={(i) => { this.setCurrentShip('BATTLESHIP', i, SIZE_BATTLESHIP)}} shipSize={SIZE_BATTLESHIP}  disabled={ships['BATTLESHIP'].placed} flexDirection={flexDirection}/>
+              <PlaceShipComponent shipName='Carrier' dragStart={(i) => { this.setCurrentShip('CARRIER', i, SIZE_CARRIER)}} shipSize={SIZE_CARRIER} disabled={ships['CARRIER'].placed} flexDirection={flexDirection}/>
+            </div>
           </div>
-          <BoardComponent board={game.getPlayerBoard()} reveal={true} onDragEnd={(row, col) => {
-            console.log('drag ended');
-            if (currentShip) {
-              const result = game.playerBoard.tryPlaceShip(row, col, ships[currentShip].constructor, this.state.direction);
-              if (result) {
-                this.shipPlaced(currentShip);
-              }
+          <BoardComponent board={game.getPlayerBoard()} reveal={true} ship={currentShip} shipSize={shipSize} startIndex={startIndex} direction={direction}
+            drop={(row, col) => {
+              console.log(`drag ended on ${row}, ${col}`);
+              if (currentShip) {
+                const result = game.playerBoard.tryPlaceShip(row, col, ships[currentShip].constructor, direction);
+                if (result) {
+                  this.shipPlaced(currentShip);
+                }
           }}}/> 
         </div>;
       case PLAYING:

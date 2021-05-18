@@ -38,6 +38,10 @@
     margin-right: 16px;
 }
 
+.highlighted {
+    opacity: 0.5;
+}
+
 .row {
     display: flex;
     flex-direction: row;

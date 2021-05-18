@@ -1,4 +1,4 @@
-import {HIT_STATE_MISS, HIT_STATE_HIT, HIT_STATE_REVEAL_SHIP } from "../Space";
+import {HIT_STATE_MISS, HIT_STATE_HIT, HIT_STATE_REVEAL_SHIP, HIT_STATE_EMPTY } from "../Space";
 
 function SpaceComponent(props) {
     const {hitState, onSpaceClicked} = props;
@@ -7,17 +7,29 @@ function SpaceComponent(props) {
     switch (hitState) {
         case HIT_STATE_REVEAL_SHIP:
             className = 'ship-square';
-            return <div className={className + ' space'}/>;
+            break;
         case HIT_STATE_HIT:
             className = 'hit-square';
-            return <div className={className + ' space'}/>;
+            break;
         case HIT_STATE_MISS:
             className = 'miss-square'
-            return <div className={className + ' space'}/>;
+            break;
         default:
             className = 'empty-square';
-            return onSpaceClicked !== null ? <div className={className + ' space clickable'} onClick={onSpaceClicked}/> : <div className={className + ' space'}/>;
+        if (props.highlighted) {
+            className += 'highlighted';
+        }
     }
+    return (onSpaceClicked !== null ? <div onDrop={props.drop} onDragOver={(e) => e.preventDefault()} onDragEnter={(e) => {
+        e.preventDefault();
+        props.onDragEnter();
+    }} onDragLeave={props.onDragLeave} className={className + ' space clickable'} onClick={onSpaceClicked} opacity={props.opacity}/> 
+        : <div onDrop={props.drop} onDragOver={(e) => e.preventDefault()} 
+        onDragEnter={(e) => {
+            e.preventDefault();
+            props.onDragEnter();
+        }} onDragLeave={props.onDragLeave} className={className + ' space'} opacity={props.opacity}/>);
+    
 }
 
 export default SpaceComponent;
