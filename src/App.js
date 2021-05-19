@@ -3,6 +3,7 @@ import Game from './Game';
 import BoardComponent from './components/BoardComponent';
 import PlaceShipComponent from './components/PlaceShipComponent';
 import { DIRECTION_DOWN, DIRECTION_RIGHT, makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier, SIZE_PATROL_BOAT, SIZE_SUBMARINE, SIZE_DESTROYER, SIZE_BATTLESHIP, SIZE_CARRIER, DIRECTION_UP } from './Ship';
+import PlacementComponent from './components/PlacementComponent';
 
 const PLACING_SHIPS = 0;
 const PLAYING = 1;
@@ -15,6 +16,7 @@ class App extends Component {
     this.rotate = this.rotate.bind(this);
     this.shipPlaced = this.shipPlaced.bind(this);
     this.reset = this.reset.bind(this);
+    this.setCurrentShip = this.setCurrentShip.bind(this);
 
     const game = new Game();
     game.stateChangedCallback = this.onGameStateChanged;
@@ -26,12 +28,12 @@ class App extends Component {
       shipSize: null,
       direction: DIRECTION_DOWN,
       ships: {
-        'PT BOAT': { constructor: makePatrolBoat, placed: false},
-        'DESTROYER': { constructor: makeDestroyer, placed: false},
-        'SUBMARINE': { constructor: makeSubmarine, placed: false},
-        'BATTLESHIP': { constructor: makeBattleship, placed: false},
-        'CARRIER': { constructor: makeCarrier, placed: false},
-      }
+        'PT BOAT': { constructor: makePatrolBoat, placed: false, size: SIZE_PATROL_BOAT},
+        'DESTROYER': { constructor: makeDestroyer, placed: false, size: SIZE_DESTROYER},
+        'SUBMARINE': { constructor: makeSubmarine, placed: false, size: SIZE_SUBMARINE},
+        'BATTLESHIP': { constructor: makeBattleship, placed: false, size: SIZE_BATTLESHIP},
+        'CARRIER': { constructor: makeCarrier, placed: false, size: SIZE_CARRIER},
+      },
     }
 
     this.floatingShipRef = React.createRef();
@@ -45,11 +47,11 @@ class App extends Component {
         gameState: newState,
         currentShip: null,
         ships: {
-          'PT BOAT': { constructor: makePatrolBoat, placed: false},
-          'DESTROYER': { constructor: makeDestroyer, placed: false},
-          'SUBMARINE': { constructor: makeSubmarine, placed: false},
-          'BATTLESHIP': { constructor: makeBattleship, placed: false},
-          'CARRIER': { constructor: makeCarrier, placed: false},
+          'PT BOAT': { constructor: makePatrolBoat, placed: false, size: SIZE_PATROL_BOAT},
+          'DESTROYER': { constructor: makeDestroyer, placed: false, size: SIZE_DESTROYER},
+          'SUBMARINE': { constructor: makeSubmarine, placed: false, size: SIZE_SUBMARINE},
+          'BATTLESHIP': { constructor: makeBattleship, placed: false, size: SIZE_BATTLESHIP},
+          'CARRIER': { constructor: makeCarrier, placed: false, size: SIZE_CARRIER},
         },
       })
     }
@@ -119,66 +121,30 @@ class App extends Component {
 
   render() {
     const {gameState, ships, currentShip, game, direction, startIndex, shipSize} = this.state;
-    const flexDirection = direction === DIRECTION_DOWN ? 'column' : 'row';
-    const flexContainerDirection = flexDirection === 'column' ? 'row' : 'column';
     switch(gameState) {
       case PLACING_SHIPS:
-        return <div className='vertical-display' 
-        onDrag={(e) => {
-
-        }}
-        onDragStart={(e) => {
-          this.floatingShipRef = e.target;
-          e.target.style.opacity = 0.5;
-        }} 
-        onDragEnd={(e) => {
-          e.target.style.opacity = '';
-          this.floatingShipRef = null;
-        }} 
-        onDragOver={(e) => {
-        }} 
-        onDragLeave={(e) => {
-          if (e.target.classList.contains('empty-square')) {
-            //e.target.style.opacity = '';
-          }
-        }} 
-        onDrop={(e) => {
-          e.preventDefault();
-          if (e.target.classList.contains('empty-square')) {
-            // do drop logic here
-          }
-        }}>
-          <div>
-            <button onClick={this.rotate}>Rotate</button>
-            <div style={{flexDirection: flexContainerDirection, display: 'flex'}}>
-              <PlaceShipComponent shipName='PT Boat' dragStart={(i) => { this.setCurrentShip('PT BOAT', i, SIZE_PATROL_BOAT)}} shipSize={SIZE_PATROL_BOAT} disabled={ships['PT BOAT'].placed} flexDirection={flexDirection}/>
-              <PlaceShipComponent shipName='Submarine' dragStart={(i) => { this.setCurrentShip('SUBMARINE', i, SIZE_SUBMARINE)}} shipSize={SIZE_SUBMARINE} disabled={ships['SUBMARINE'].placed} flexDirection={flexDirection}/>
-              <PlaceShipComponent shipName='Destroyer' dragStart={(i) => { this.setCurrentShip('DESTROYER', i, SIZE_DESTROYER)}} shipSize={SIZE_DESTROYER} disabled={ships['DESTROYER'].placed} flexDirection={flexDirection}/>
-              <PlaceShipComponent shipName='Battleship' dragStart={(i) => { this.setCurrentShip('BATTLESHIP', i, SIZE_BATTLESHIP)}} shipSize={SIZE_BATTLESHIP}  disabled={ships['BATTLESHIP'].placed} flexDirection={flexDirection}/>
-              <PlaceShipComponent shipName='Carrier' dragStart={(i) => { this.setCurrentShip('CARRIER', i, SIZE_CARRIER)}} shipSize={SIZE_CARRIER} disabled={ships['CARRIER'].placed} flexDirection={flexDirection}/>
-            </div>
-          </div>
-          <BoardComponent board={game.getPlayerBoard()} reveal={true} ship={currentShip} shipSize={shipSize} startIndex={startIndex} direction={direction}
+        return (<div className='vertical-display'>
+        <PlacementComponent ships={ships} direction={direction} rotate={this.rotate} setCurrentShip={this.setCurrentShip}/>
+          <BoardComponent board={game.playerBoard} reveal={true} ship={currentShip} shipSize={shipSize} startIndex={startIndex} direction={direction}
             drop={(row, col) => {
-              console.log(`drag ended on ${row}, ${col}`);
               if (currentShip) {
                 const result = game.playerBoard.tryPlaceShip(row, col, ships[currentShip].constructor, direction);
-                if (result) {
+                if (result.length !== 0) {
                   this.shipPlaced(currentShip);
                 }
           }}}/> 
-        </div>;
+        </div>);
       case PLAYING:
-        return <div className='main-display'>
-          <BoardComponent title='Your Board' board={game.getPlayerBoard()} reveal={true}/>
+        return (<div className='main-display'>
+          <BoardComponent title='Your Board' board={game.playerBoard} reveal={true}/>
           <BoardComponent title='Opponent Board' onClickCallback={game.makePlayerMove} board={game.computerBoard} reveal={false}/>
-        </div>
+        </div>)
       case GAME_OVER:
-        return <div className='main-display'>
-          <BoardComponent title='Your Board' board={game.getPlayerBoard()} reveal={true}/>
+        return (<div className='main-display'>
+          <BoardComponent title='Your Board' board={game.playerBoard} reveal={true}/>
           <BoardComponent title='Opponent Board' board={game.computerBoard} reveal={true}/>
           <button onClick={() => this.reset()}>Play Again?</button>
-        </div>;
+        </div>);
       default:
         console.log(`no match for game state: ${gameState}`);
         return null; 

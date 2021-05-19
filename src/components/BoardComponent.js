@@ -22,10 +22,14 @@ class BoardComponent extends Component {
     componentDidUpdate(prevProps) {
         if (prevProps.board !== this.props.board) {
             this.props.board.updateCallback = this.updateBoard;
+            this.setState({
+                coordsToHighlight: []
+            });
         }
     }
 
     highlightRows(startRow, startCol) {
+        this.clearHighlighting();
         let row, col;
         if (this.props.direction === DIRECTION_DOWN) {
             row = startRow - this.props.startIndex;
@@ -41,7 +45,6 @@ class BoardComponent extends Component {
     }
 
     clearHighlighting() {
-        console.log('clear');
         this.setState({
             coordsToHighlight: []
         });

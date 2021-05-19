@@ -63,3 +63,13 @@
 .dragging {
     background-color: purple;
 }
+
+.ship-placement {
+    margin: 4px;
+}
+
+.ship-placement-container {
+    display: flex; 
+    flex-direction: containerFlexDirection; 
+    justify-content: space-between;
+}

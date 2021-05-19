@@ -84,12 +84,12 @@ class Gameboard {
         const ship = shipConstructor(() => false);
         // return true if ship successfully placed, false otherwise
         const size = ship.size;
-        const result = this.checkShipPlacement(row, col, size, direction)
-        if (result) {
+        const result = this.checkShipPlacement(row, col, size, direction);
+        if (result.length) {
             this.addShip(ship, result);
         }
         
-        return result;
+        return result.length;
     }
 
     addShip(ship, shipSpaces) {
@@ -120,8 +120,6 @@ class Gameboard {
         const space = this.getSpace(row, col);
         space.onHit();
         const newBoard = Object.assign(this);
-        console.log(this.updateCallback);
-        console.log(this);
         this.updateCallback(newBoard);
         return newBoard;
     }
