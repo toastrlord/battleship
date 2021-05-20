@@ -8,6 +8,7 @@ class Gameboard {
     constructor() {
         this.spaces = [];
         this.ships = [];
+        this.shipSunkListeners = [];
         for (let i = 0; i < WIDTH; i++) {
             for (let j = 0; j < HEIGHT; j++) {
                 this.spaces.push(new Space());
@@ -93,6 +94,14 @@ class Gameboard {
     }
 
     addShip(ship, shipSpaces) {
+        ship.onSunk = () => {
+            shipSpaces.forEach(({row, col}) => {
+                this.sinkSpace(row, col);
+            });
+            const newBoard = Object.assign(this);
+            this.shipSunk(ship.name);
+            this.updateCallback(newBoard);
+        }
         shipSpaces.forEach(({row, col}, index) => {
             const currentSpace = this.getSpace(row, col);
             if (currentSpace.onHitCallback) {
@@ -124,8 +133,22 @@ class Gameboard {
         return newBoard;
     }
 
+    sinkSpace(row, col) {
+        const space = this.getSpace(row, col);
+        space.onSunk();
+    }
+
     allShipsSunk() {
         return this.ships.reduce((prev, ship) => prev && ship.isSunk(), true);
+    }
+
+    shipSunk(shipName) {
+        console.log(`Sunk ${shipName}`);
+        this.shipSunkListeners.forEach(cb => cb(shipName));
+    }
+
+    addShipSunkListener(cb) {
+        this.shipSunkListeners.push(cb);
     }
 }
 

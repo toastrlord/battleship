@@ -1,10 +1,13 @@
-import {HIT_STATE_MISS, HIT_STATE_HIT, HIT_STATE_REVEAL_SHIP, HIT_STATE_EMPTY } from "../Space";
+import {HIT_STATE_MISS, HIT_STATE_HIT, HIT_STATE_REVEAL_SHIP, HIT_STATE_SUNK } from "../Space";
 
 function SpaceComponent(props) {
     const {hitState, onSpaceClicked} = props;
     let className;
     // only allow a click event if this square hasn't been clicked yet
     switch (hitState) {
+        case HIT_STATE_SUNK:
+            className = 'sunk-square';
+            break;
         case HIT_STATE_REVEAL_SHIP:
             className = 'ship-square';
             break;
@@ -12,7 +15,7 @@ function SpaceComponent(props) {
             className = 'hit-square';
             break;
         case HIT_STATE_MISS:
-            className = 'miss-square'
+            className = 'miss-square';
             break;
         default:
             className = 'empty-square';

@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import SpaceComponent from './SpaceComponent';
 import {HEIGHT, WIDTH } from '../Gameboard';
-import { HIT_STATE_REVEAL_SHIP, HIT_STATE_HIT } from '../Space';
+import { HIT_STATE_REVEAL_SHIP, HIT_STATE_HIT, HIT_STATE_SUNK } from '../Space';
 import { DIRECTION_DOWN } from '../Ship';
 
 class BoardComponent extends Component {
@@ -56,7 +56,7 @@ class BoardComponent extends Component {
         const spaces = this.props.board.spaces;
         return (<div className='row' key={row}>
             {spaces.slice(row * HEIGHT, row * HEIGHT + WIDTH).map((space, col) => {
-                const showShip = this.props.reveal && this.props.board.getSpace(row, col).onHitCallback && space.hitState !== HIT_STATE_HIT;
+                const showShip = this.props.reveal && this.props.board.getSpace(row, col).onHitCallback && space.hitState !== HIT_STATE_HIT && space.hitState !== HIT_STATE_SUNK;
                 const hitState = showShip ? HIT_STATE_REVEAL_SHIP : space.hitState;
                 const onDragEnter = ship ? () => this.highlightRows(row, col) : null;
                 let rowOffset = 0;
