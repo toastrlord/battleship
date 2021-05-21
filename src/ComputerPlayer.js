@@ -1,5 +1,5 @@
 import {WIDTH, HEIGHT} from './Gameboard';
-import {HIT_STATE_EMPTY, HIT_STATE_HIT} from './Space';
+import {HIT_STATE_EMPTY, HIT_STATE_HIT, HIT_STATE_SUNK} from './Space';
 
 
 class ComputerPlayer {
@@ -35,31 +35,35 @@ class ComputerPlayer {
         if (shipSize === this.minShipSize) {
             this.determineMinShipSize();
         }
+        this.hits.length = 0;
+        this.nextMoves.length = 0;
+        console.log('cleared hits, nextMoves');
     }
 
     makeMove() {
-        console.log('computer moving');
         let coords;
-        if (this.nextMoves.length === 0) {
-            // search mode, take a random guess at the board
-            coords = this.search();
-            
+        console.log(this.hits);
+        if (this.hits.length) {
+            console.log('destroying');
+            this.destroy();
         } else {
-            // we know some spaces that may contain a ship, so pick one at random
-            coords = this.nextMoves.splice(Math.random() * (this.nextMoves.length - 1), 1)[0];
+            console.log('searching');
+            this.search();
         }
+        do {
+            console.log('next moves:');
+            console.log(this.nextMoves);
+            coords = this.nextMoves.splice(Math.random() * (this.nextMoves.length - 1), 1)[0];
+            console.log(coords);
+        } while (this.opposingBoard.getSpace(coords.row, coords.col).hitState !== HIT_STATE_EMPTY)
+        console.log(`firing at ${coords.row}, ${coords.col}`);
         this.opposingBoard.recieveAttack(coords.row, coords.col);
         if (this.opposingBoard.getSpace(coords.row, coords.col).hitState === HIT_STATE_HIT) {
-            // if we hit, then search the squares adjacent, filtering out anything we've already tried or out-of-bounds coordinates
-            const spacesToSearch = [[1,0], [0,-1], [0,1], [-1,0]].map(([rowOffset, colOffset]) => {
-                return {row: coords.row + rowOffset, col: coords.col + colOffset};
-            })
-            .filter(({row, col}) => {
-                return (row < HEIGHT && row >= 0 && col < WIDTH && col >= 0 
-                    && this.opposingBoard.getSpace(row, col).hitState === HIT_STATE_EMPTY
-                    && !this.nextMoves.includes({row, col}));
-            });
-            this.nextMoves = this.nextMoves.concat(spacesToSearch);
+            console.log(`adding hit (${coords.row}, ${coords.col})`);
+            this.hits.push(coords);
+            return true;
+        } else if (this.opposingBoard.getSpace(coords.row, coords.col).hitState === HIT_STATE_SUNK) {
+            console.log(`sunk ship with shot at (${coords.row}, ${coords.col})`);
             return true;
         }
         return false;
@@ -97,6 +101,9 @@ class ComputerPlayer {
      * @param {Number} col 
      */
     canShipFitHere(row, col) {
+        if (row < 0 || row >= HEIGHT || col < 0 || col >= WIDTH) {
+            return false;
+        }
         const canFitVertically = this.verticalLength(row, col) >= this.minShipSize;
         const canFitHorizontally =  this.horizontalLength(row, col) >= this.minShipSize;
         return (canFitVertically|| canFitHorizontally);
@@ -113,63 +120,76 @@ class ComputerPlayer {
             row = Math.round(Math.random() * (HEIGHT - 1));
             col = Math.round(Math.random() * (WIDTH - 1));
         } while (this.opposingBoard.getSpace(row, col).hitState !== HIT_STATE_EMPTY && !this.canShipFitHere(row, col));
-        return {row, col};
+        console.log(`searching for (${row}, ${col})`);
+        this.nextMoves.push({row, col});
     }
 
     /**
      * Hone in and sink the ship we've hit
      */
     destroy() {
-        if (this.nextMoves.length !== 0) {
-            if (this.hits.length === 1) {
-                const coords = this.hits[0];
-                const adjacentSpaces = [[1,0], [0,-1], [0,1], [-1,0]].map(([rowOffset, colOffset]) => {
-                    return {row: coords.row + rowOffset, col: coords.col + colOffset};
+        if (this.hits.length === 1) {
+            console.log('1 hit, find adjacent spaces');
+            const coords = this.hits[0];
+            const adjacentSpaces = [[1,0], [0,-1], [0,1], [-1,0]].map(([rowOffset, colOffset]) => {
+                return {row: coords.row + rowOffset, col: coords.col + colOffset};
+            });
+            const spacesToInvestigate = adjacentSpaces.filter(({row, col}) => {
+                return this.canShipFitHere(row, col);
+            });
+            this.nextMoves = this.nextMoves.concat(spacesToInvestigate);
+        } else {
+            // determine which way we should be searching
+            // FIXME: doesn't account for if we have hits for multiple ships
+            console.log('2+ hits registered');
+            console.log(this.hits);
+            this.nextMoves = [];
+            const row1 = this.hits[0].row;
+            const col1 = this.hits[0].col;
+            const row2 = this.hits[1].row;
+            const col2 = this.hits[1].col;
+            console.log(`(${row1},${col1}),(${row2},${col2})`);
+            const rowDelta = Math.abs(row1 - row2);
+            const colDelta = Math.abs(col1 - col2);
+            console.log(`row delta: ${rowDelta}, col delta: ${colDelta}`);
+            if (rowDelta > 0) {
+                // search along this row
+                let maxRow = this.hits[0].row;
+                let minRow = this.hits[0].row;
+                this.hits.forEach(({row, _}) => {
+                    if (row < minRow) {
+                        minRow = row;
+                    }
+                    if (row > maxRow) {
+                        maxRow = row;
+                    }
                 });
-                const spacesToInvestigate = adjacentSpaces.filter(({row, col}) => {
-                    return this.canShipFitHere(row, col);
+                const spacesToSearch = [{row: maxRow + 1, col: col1}, {row: minRow - 1, col: col1}].filter(({row, _}) => {
+                    return row >= 0 && row < HEIGHT;
                 });
-                this.nextMoves.concat(spacesToInvestigate);
-            } else {
-                // determine which way we should be searching
-                // FIXME: doesn't account for if we have hits for multiple ships
-                const {row1, col1} = this.hits[0];
-                const {row2, col2} = this.hits[1];
-                const rowDelta = Math.abs(row1 - row2);
-                const colDelta = Math.abs(col1 - col2);
-                if (rowDelta > 0) {
-                    // search along this row
-                    let maxRow = this.hits[0].row;
-                    let minRow = this.hits[0].row;
-                    this.hits.forEach(({row, _}) => {
-                        if (row < minRow) {
-                            minRow = row;
-                        }
-                        if (row > maxRow) {
-                            maxRow = row;
-                        }
-                    });
-                    const spacesToSearch = [{row: maxRow + 1, col1}, {row: minRow - 1, col1}].filter(({row, col}) => {
-                        return row >= 0 && row < HEIGHT;
-                    });
-                    this.nextMoves.push(spacesToSearch);
-                } else if (colDelta > 0) {
-                    // search along this column
-                    let maxCol = this.hits[0].col;
-                    let minCol = this.hits[0].col;
-                    this.hits.forEach(({_, col}) => {
-                        if (col < minCol) {
-                            minCol = col;
-                        }
-                        if (col > maxCol) {
-                            maxCol = col;
-                        }
-                    });
-                }
+                console.log('spaces to search (row): ');
+                console.log(spacesToSearch);
+                this.nextMoves = this.nextMoves.concat(spacesToSearch);
+            } else if (colDelta > 0) {
+                // search along this column
+                let maxCol = this.hits[0].col;
+                let minCol = this.hits[0].col;
+                this.hits.forEach(({_, col}) => {
+                    if (col < minCol) {
+                        minCol = col;
+                    }
+                    if (col > maxCol) {
+                        maxCol = col;
+                    }
+                });
+                const spacesToSearch = [{row: row1, col: maxCol + 1}, {row: row1, col: minCol - 1}].filter(({_, col}) => {
+                    return col >= 0 && col < WIDTH;
+                });
+                console.log('spaces to search (col)');
+                console.log(spacesToSearch);
+                this.nextMoves = this.nextMoves.concat(spacesToSearch);
             }
-        }
-        else {
-        }
+        }        
     }
 }
 
