@@ -35,9 +35,9 @@ class ComputerPlayer {
         if (shipSize === this.minShipSize) {
             this.determineMinShipSize();
         }
-        this.hits.length = 0;
-        this.nextMoves.length = 0;
-        console.log('cleared hits, nextMoves');
+        console.log('clearing hits and nextMoves');
+        this.hits = [];
+        this.nextMoves = [];
     }
 
     makeMove() {
@@ -46,16 +46,18 @@ class ComputerPlayer {
         if (this.hits.length) {
             console.log('destroying');
             this.destroy();
+            do {
+                console.log('next moves:');
+                console.log(this.nextMoves);
+                const index = Math.round(Math.random() * (this.nextMoves.length - 1));
+                console.log(index);
+                coords = this.nextMoves.splice(Math.round(Math.random() * (this.nextMoves.length - 1)), 1)[0];
+            } while (this.opposingBoard.getSpace(coords.row, coords.col).hitState !== HIT_STATE_EMPTY)
         } else {
             console.log('searching');
-            this.search();
+            coords = this.search();
         }
-        do {
-            console.log('next moves:');
-            console.log(this.nextMoves);
-            coords = this.nextMoves.splice(Math.random() * (this.nextMoves.length - 1), 1)[0];
-            console.log(coords);
-        } while (this.opposingBoard.getSpace(coords.row, coords.col).hitState !== HIT_STATE_EMPTY)
+        
         console.log(`firing at ${coords.row}, ${coords.col}`);
         this.opposingBoard.recieveAttack(coords.row, coords.col);
         if (this.opposingBoard.getSpace(coords.row, coords.col).hitState === HIT_STATE_HIT) {
@@ -110,7 +112,8 @@ class ComputerPlayer {
     }
 
     /**
-     * 
+     * Search for a ship to destroy, filtering out spaces we know cannot contain a ship based on our
+     * knowledge of the ships we've already sunk 
      * @returns 
      */
     search() {
@@ -121,7 +124,10 @@ class ComputerPlayer {
             col = Math.round(Math.random() * (WIDTH - 1));
         } while (this.opposingBoard.getSpace(row, col).hitState !== HIT_STATE_EMPTY && !this.canShipFitHere(row, col));
         console.log(`searching for (${row}, ${col})`);
-        this.nextMoves.push({row, col});
+        console.log('nextMove should be');
+        console.log([{row, col}]);
+        //FIXME: something odd happening here
+        return {row, col};
     }
 
     /**
@@ -137,12 +143,14 @@ class ComputerPlayer {
             const spacesToInvestigate = adjacentSpaces.filter(({row, col}) => {
                 return this.canShipFitHere(row, col);
             });
+            console.log('destroy modifying next moves');
             this.nextMoves = this.nextMoves.concat(spacesToInvestigate);
         } else {
             // determine which way we should be searching
             // FIXME: doesn't account for if we have hits for multiple ships
             console.log('2+ hits registered');
             console.log(this.hits);
+            console.log('destroy modifying next moves');
             this.nextMoves = [];
             const row1 = this.hits[0].row;
             const col1 = this.hits[0].col;
@@ -169,6 +177,7 @@ class ComputerPlayer {
                 });
                 console.log('spaces to search (row): ');
                 console.log(spacesToSearch);
+                console.log('destroy modifying next moves');
                 this.nextMoves = this.nextMoves.concat(spacesToSearch);
             } else if (colDelta > 0) {
                 // search along this column
@@ -187,6 +196,7 @@ class ComputerPlayer {
                 });
                 console.log('spaces to search (col)');
                 console.log(spacesToSearch);
+                console.log('destroy modifying next moves');
                 this.nextMoves = this.nextMoves.concat(spacesToSearch);
             }
         }        
