@@ -6,6 +6,7 @@ import {HIT_STATE_EMPTY, HIT_STATE_MISS} from './Space';
 import ComputerPlayer from "./ComputerPlayer";
 
 function placeShipsRandomly(board) {
+    console.log('randomly placing ships');
     let ships = [makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier];
     ships.forEach(shipConstructor => {
         let placed = false;
@@ -13,10 +14,20 @@ function placeShipsRandomly(board) {
             const row = Math.round(Math.random() * (HEIGHT - 1));
             const col = Math.round(Math.random() * (WIDTH - 1));
             const direction = Math.round(Math.random());
-            placed = board.tryPlaceShip(row, col, shipConstructor, direction);
+            const adjacentSquares = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([rowOffset, colOffset]) => {
+                return {row: row + rowOffset, col: col + colOffset}
+            }).filter(({row, col}) => {
+                return row >= 0 && row < HEIGHT && col >= 0 && col < WIDTH;
+            });
+            const isShipAdjacent = adjacentSquares.map(({row, col}) => {
+                return board.getSpace(row, col).onHitListener;
+            });
+            if (!isShipAdjacent) {
+                placed = board.tryPlaceShip(row, col, shipConstructor, direction);
+            }
         }
     });
-
+    console.log('done placing ships');
     return board;
 }
 
