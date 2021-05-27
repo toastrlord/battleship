@@ -1,5 +1,6 @@
-import { DIRECTION_DOWN } from "../Ship";
-import PlaceShipComponent from "./PlaceShipComponent";
+import { DIRECTION_DOWN } from '../Ship';
+import React from 'react';
+import PlaceShipComponent from './PlaceShipComponent';
 
 function PlacementComponent(props) {
     const shipFlexDirection = props.direction === DIRECTION_DOWN ? 'column' : 'row';

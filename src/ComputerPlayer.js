@@ -24,6 +24,7 @@ class ComputerPlayer {
      */
     determineMinShipSize() {
         if (Object.keys(this.shipsRemaining).length) {
+            console.log('calculating');
             this.minShipSize = Object.keys(this.shipsRemaining).map(shipName => this.shipsRemaining[shipName]).reduce((min, current) => current < min ? current : min);
         }
     }
@@ -36,10 +37,8 @@ class ComputerPlayer {
         }
         console.log('clearing hits and nextMoves');
         this.hits = this.hits.filter(({row, col}) => {
-            return this.opposingBoard.getSpace(row, col).hitState === HIT_STATE_HIT;
+            return this.opposingBoard.getSpace(row, col).hitState !== HIT_STATE_SUNK;
         });
-        console.log('hits: ');
-        console.log(this.hits);
         this.nextMoves = [];
     }
 
@@ -50,8 +49,11 @@ class ComputerPlayer {
             console.log('destroying');
             this.destroy();
             do {
+                console.log('next moves:');
+                console.log(this.nextMoves);
                 const index = Math.round(Math.random() * (this.nextMoves.length - 1));
-                coords = this.nextMoves.splice(index, 1)[0];
+                console.log(index);
+                coords = this.nextMoves.splice(Math.round(Math.random() * (this.nextMoves.length - 1)), 1)[0];
             } while (this.opposingBoard.getSpace(coords.row, coords.col).hitState !== HIT_STATE_EMPTY)
         } else {
             console.log('searching');
@@ -73,12 +75,12 @@ class ComputerPlayer {
 
     verticalLength(row, col) {
         let minRow = row;
-        while (minRow - 1 >= 0 && this.opposingBoard.getSpace(minRow - 1, col).hitState === HIT_STATE_EMPTY) {
+        while (minRow - 1 >= 0 && this.opposingBoard.getSpace(minRow - 1, col).hitState !== HIT_STATE_EMPTY) {
             minRow -= 1;
         }
 
         let maxRow = row;
-        while (maxRow + 1 < HEIGHT && this.opposingBoard.getSpace(maxRow + 1, col).hitState === HIT_STATE_EMPTY) {
+        while (maxRow + 1 < HEIGHT && this.opposingBoard.getSpace(maxRow + 1, col).hitState !== HIT_STATE_EMPTY) {
             maxRow += 1;
         }
         return (maxRow - minRow) + 1;
@@ -86,12 +88,12 @@ class ComputerPlayer {
 
     horizontalLength(row, col) {
         let minCol = col;
-        while (minCol - 1 >= 0 && this.opposingBoard.getSpace(row, minCol - 1).hitState === HIT_STATE_EMPTY) {
+        while (minCol - 1 >= 0 && this.opposingBoard.getSpace(row, minCol - 1).hitState !== HIT_STATE_EMPTY) {
             minCol -= 1;
         }
 
         let maxCol = col;
-        while (maxCol + 1 < WIDTH && this.opposingBoard.getSpace(row, maxCol + 1).hitState === HIT_STATE_EMPTY) {
+        while (maxCol + 1 < WIDTH && this.opposingBoard.getSpace(row, maxCol + 1).hitState !== HIT_STATE_EMPTY) {
             maxCol += 1;
         }
         return (maxCol - minCol) + 1;
@@ -130,6 +132,45 @@ class ComputerPlayer {
         return {row, col};
     }
 
+    validateSpaces(coords) {
+        return coords.filter(({row, col}) => {
+            return row >= 0 && row < HEIGHT && col >= 0 && col < WIDTH
+            && this.opposingBoard.getSpace(row, col).hitState === HIT_STATE_EMPTY;
+        });
+    }
+
+    searchAlongColumn(coords) {
+        let maxRow = coords.row;
+        let minRow = coords.row;
+        const col = coords.col;
+        while (maxRow < HEIGHT && this.opposingBoard.getSpace(maxRow, col).hitState === HIT_STATE_HIT) {
+            maxRow ++;
+        }
+        while (minRow >= 0 && this.opposingBoard.getSpace(minRow, col).hitState === HIT_STATE_HIT) {
+            minRow --;
+        }
+        const spacesToSearch = this.validateSpaces([{row: maxRow , col}, {row: minRow, col}]);
+        console.log('col search yielded: ');
+        console.log(spacesToSearch);
+        return spacesToSearch;
+    }
+
+    searchAlongRow(coords) {
+        let maxCol = coords.col;
+        let minCol = coords.col;
+        const row = coords.row;
+        while (maxCol < WIDTH && this.opposingBoard.getSpace(row, maxCol).hitState === HIT_STATE_HIT) {
+            maxCol ++;
+        }
+        while (minCol >= 0 && this.opposingBoard.getSpace(row, minCol).hitState === HIT_STATE_HIT) {
+            minCol --;
+        }
+        const spacesToSearch = this.validateSpaces([{row, col: maxCol}, {row, col: minCol}]);
+        console.log('row search yielded: ');
+        console.log(spacesToSearch);
+        return spacesToSearch;
+    }
+
     /**
      * Hone in and sink the ship we've hit
      */
@@ -143,73 +184,49 @@ class ComputerPlayer {
             const spacesToInvestigate = adjacentSpaces.filter(({row, col}) => {
                 return this.canShipFitHere(row, col);
             });
-            console.log('spaces to investigate');
-            console.log(spacesToInvestigate);
             console.log('destroy modifying next moves');
             this.nextMoves = this.nextMoves.concat(spacesToInvestigate);
         } else {
             // determine which way we should be searching
+            // FIXME: doesn't account for if we have hits for multiple ships
             console.log('2+ hits registered');
             console.log(this.hits);
             console.log('destroy modifying next moves');
             this.nextMoves = [];
-            // TODO: needs to be a touch more complicated
-            // take a look and see how many rows / columns we should consider searching along
-            // (only applies if we have multiple ships adjacent to each other)
             const row1 = this.hits[0].row;
             const col1 = this.hits[0].col;
             const row2 = this.hits[1].row;
             const col2 = this.hits[1].col;
+            console.log(`(${row1},${col1}),(${row2},${col2})`);
             const rowDelta = Math.abs(row1 - row2);
             const colDelta = Math.abs(col1 - col2);
+            console.log(`row delta: ${rowDelta}, col delta: ${colDelta}`);
             if (rowDelta > 0) {
-                // search along this row
-                let maxRow = this.hits[0].row;
-                let minRow = this.hits[0].row;
-                this.hits.forEach(({row, _}) => {
-                    if (row < minRow) {
-                        minRow = row;
-                    }
-                    if (row > maxRow) {
-                        maxRow = row;
-                    }
-                });
-                const spacesToSearch = [{row: maxRow + 1, col: col1}, {row: minRow - 1, col: col1}].filter(({row, col}) => {
-                    return col >= 0 && col < WIDTH && 
-                    row >= 0 && row < HEIGHT && this.opposingBoard.getSpace(row, col).hitState !== HIT_STATE_EMPTY;
-                });
-                this.nextMoves = this.nextMoves.concat(spacesToSearch);
+                // search up and down along this column
+                this.nextMoves = this.nextMoves.concat(this.searchAlongColumn(this.hits[0]));
+                if (this.nextMoves.length === 0) {
+                    console.log('searching along other rows');
+                    // we've searched along this column already and haven't sunk a ship yet
+                    // try the rows instead
+                    do {
+                        const index = Math.round(Math.random() * (this.hits.length - 1));
+                        this.nextMoves = this.nextMoves.concat(this.searchAlongRow(this.hits[index]));
+                        console.log(this.nextMoves);
+                    } while (this.nextMoves.length === 0);
+                }
             } else if (colDelta > 0) {
-                // search along this column
-                let maxCol = this.hits[0].col;
-                let minCol = this.hits[0].col;
-                this.hits.forEach(({_, col}) => {
-                    if (col < minCol) {
-                        minCol = col;
-                    }
-                    if (col > maxCol) {
-                        maxCol = col;
-                    }
-                });
-                const spacesToSearch = [{row: row1, col: maxCol + 1}, {row: row1, col: minCol - 1}].filter(({row, col}) => {
-                    return col >= 0 && col < WIDTH && 
-                    row >= 0 && row < HEIGHT && this.opposingBoard.getSpace(row, col).hitState !== HIT_STATE_EMPTY;
-                });
-                console.log('spaces to search (col)');
-                console.log(spacesToSearch);
-                console.log('destroy modifying next moves');
-                this.nextMoves = this.nextMoves.concat(spacesToSearch);
-            }
-            // in the case that there are multiple adjacent ships, and shooting 
-            // in one direction has not sunk anything, look at adjacent squares
-            if (this.nextMoves.length === 0) {
-                this.nextMoves = this.hits.map(({row, col}) => {
-                    return [[1,0], [0,-1], [0,1], [-1,0]].map(([rowOffset, colOffset]) => {
-                        return {row: row + rowOffset, col: col + colOffset};
-                    });
-                }).reduce((prev, next) => prev.concat(next));
-            console.log('looking for extra spaces');
-            console.log(this.nextMoves);
+                // search left and right along this row 
+                this.nextMoves = this.nextMoves.concat(this.searchAlongRow(this.hits[0]));
+                if (this.nextMoves.length === 0) {
+                    console.log('searching along other columns');
+                    // we've searched along this row already and haven't sunk a ship yet
+                    // try the columns instead
+                    do {
+                        const index = Math.round(Math.random() * (this.hits.length - 1));
+                        this.nextMoves = this.nextMoves.concat(this.searchAlongColumn(this.hits[index]));
+                        console.log(this.nextMoves);
+                    } while (this.nextMoves.length === 0);
+                }
             }
         }        
     }

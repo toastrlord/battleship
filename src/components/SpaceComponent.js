@@ -1,3 +1,4 @@
+import React from 'react';
 import {HIT_STATE_MISS, HIT_STATE_HIT, HIT_STATE_REVEAL_SHIP, HIT_STATE_SUNK } from "../Space";
 
 function SpaceComponent(props) {

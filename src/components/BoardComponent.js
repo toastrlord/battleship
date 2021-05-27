@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import SpaceComponent from './SpaceComponent';
 import {HEIGHT, WIDTH } from '../Gameboard';
 import { HIT_STATE_REVEAL_SHIP, HIT_STATE_HIT, HIT_STATE_SUNK } from '../Space';

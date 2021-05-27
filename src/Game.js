@@ -19,12 +19,12 @@ function placeShipsRandomly(board) {
             }).filter(({row, col}) => {
                 return row >= 0 && row < HEIGHT && col >= 0 && col < WIDTH;
             });
-            const isShipAdjacent = adjacentSquares.map(({row, col}) => {
+            /*const isShipAdjacent = adjacentSquares.map(({row, col}) => {
                 return board.getSpace(row, col).onHitListener;
-            });
-            if (!isShipAdjacent) {
+            });*/
+            //if (!isShipAdjacent) {
                 placed = board.tryPlaceShip(row, col, shipConstructor, direction);
-            }
+            //}
         }
     });
     console.log('done placing ships');
