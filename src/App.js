@@ -129,7 +129,7 @@ class App extends Component {
             drop={(row, col) => {
               if (currentShip) {
                 const result = game.playerBoard.tryPlaceShip(row, col, ships[currentShip].constructor, direction);
-                if (result.length !== 0) {
+                if (result) {
                   this.shipPlaced(currentShip);
                 }
           }}}/> 
@@ -143,7 +143,7 @@ class App extends Component {
         return (<div className='main-display'>
           <BoardComponent title='Your Board' board={game.playerBoard} reveal={true}/>
           <BoardComponent title='Opponent Board' board={game.computerBoard} reveal={true}/>
-          <button onClick={() => this.reset()}>Play Again?</button>
+          <button onClick={this.reset}>Play Again?</button>
         </div>);
       default:
         console.log(`no match for game state: ${gameState}`);

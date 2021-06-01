@@ -21,7 +21,11 @@ function SpaceComponent(props) {
         default:
             className = 'empty-square';
         if (props.highlighted) {
-            className += 'highlighted';
+            if (props.invalidPlacement) {
+                className += ' highlighted-invalid';
+            } else {
+                className += ' highlighted';
+            }   
         }
     }
     return (onSpaceClicked !== null ? <div onDrop={props.drop} onDragOver={(e) => e.preventDefault()} onDragEnter={(e) => {

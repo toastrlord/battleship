@@ -22,6 +22,7 @@ class BoardComponent extends Component {
     componentDidUpdate(prevProps) {
         if (prevProps.board !== this.props.board) {
             this.props.board.updateCallback = this.updateBoard;
+            this.updateBoard(this.props.board);
             this.setState({
                 coordsToHighlight: []
             });
@@ -38,25 +39,27 @@ class BoardComponent extends Component {
             row = startRow;
             col = startCol - this.props.startIndex;
         }
-        let coordsToHighlight = this.state.board.checkShipPlacement(row, col, this.props.shipSize, this.props.direction);
+        const result = this.state.board.checkShipPlacement(row, col, this.props.shipSize, this.props.direction);
         this.setState({
-            coordsToHighlight
+            validPlacement: result.validPlacement,
+            coordsToHighlight: result.shipSpaces
         });
     }
 
     clearHighlighting() {
         this.setState({
+            validPlacement: false,
             coordsToHighlight: []
         });
     }
 
     generateRow(row) {
         const {onClickCallback, ship} = this.props;
-        const {coordsToHighlight} = this.state;
-        const spaces = this.props.board.spaces;
+        const {validPlacement, coordsToHighlight, board} = this.state;
+        const spaces = board.spaces;
         return (<div className='row' key={row}>
             {spaces.slice(row * HEIGHT, row * HEIGHT + WIDTH).map((space, col) => {
-                const showShip = this.props.reveal && this.props.board.getSpace(row, col).onHitCallback && space.hitState !== HIT_STATE_HIT && space.hitState !== HIT_STATE_SUNK;
+                const showShip = this.props.reveal && board.getSpace(row, col).onHitCallback && space.hitState !== HIT_STATE_HIT && space.hitState !== HIT_STATE_SUNK;
                 const hitState = showShip ? HIT_STATE_REVEAL_SHIP : space.hitState;
                 const onDragEnter = ship ? () => this.highlightRows(row, col) : null;
                 let rowOffset = 0;
@@ -66,11 +69,13 @@ class BoardComponent extends Component {
                 } else {
                     colOffset = -this.props.startIndex;
                 }
-                const drop = ship ? () => this.props.drop(row + rowOffset, col + colOffset) : null;
+                const drop = ship ? () => { this.props.drop(row + rowOffset, col + colOffset);
+                                            this.clearHighlighting(); } 
+                                            : null;
                 const highlighted = coordsToHighlight.filter(coordinate => {
                     return coordinate.row === row && coordinate.col === col;
-                }).length;
-                return <SpaceComponent highlighted={highlighted} hitState={hitState} row={row} col={col} key={row * HEIGHT + col} onDragEnter={onDragEnter} drop={drop ? drop : null} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : null}/>
+                });
+                return <SpaceComponent highlighted={highlighted.length} invalidPlacement={highlighted.length && !validPlacement} hitState={hitState} row={row} col={col} key={row * HEIGHT + col} onDragEnter={onDragEnter} drop={drop ? drop : null} onSpaceClicked={onClickCallback ? () => onClickCallback(row, col) : null}/>
             })}
         </div>);
     }
@@ -85,9 +90,10 @@ class BoardComponent extends Component {
     componentWillUnmount() {
         const newBoard = Object.assign(this.state.board);
         newBoard.updateCallback = null;
-        this.setState({
-            board: newBoard
-        })
+        this.setState = {
+            board: newBoard,
+            coordsToHighlight: []
+        }
     }
 
     render() {

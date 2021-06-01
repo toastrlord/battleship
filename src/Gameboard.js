@@ -62,23 +62,26 @@ class Gameboard {
                 }
                 // go from startRow up to startRow - (size - 1)
         }
+        let validPlacement = true;
 
         for (let i = 0; i < size; i++) {
             const row = startRow + (i * rowDelta);
             const col = startCol + (i * colDelta);
-            shipSpaces = shipSpaces.concat({row, col});
+            const currentSpace = this.getSpace(row, col);
+            if (currentSpace && currentSpace.onHitCallback) {
+                validPlacement = false;
+                shipSpaces = shipSpaces.concat({row, col, hasShip: true});
+            }
+            if (currentSpace) {
+                shipSpaces = shipSpaces.concat({row, col, hasShip: false});
+            }
+            else { // out of bounds
+                return {shipSpaces: [], validPlacement: false};
+            }   
+            
         }
 
-        let validPlacement = true;
-        shipSpaces.forEach(({row, col}) => {
-            const currentSpace = this.getSpace(row, col);
-            if (!currentSpace || currentSpace.onHitCallback) {
-                validPlacement = false;
-                return;
-            }
-        });
-
-        return validPlacement ? shipSpaces : [];
+        return {shipSpaces, validPlacement};
     }
 
     tryPlaceShip(row, col, shipConstructor, direction) {
@@ -86,11 +89,11 @@ class Gameboard {
         // return true if ship successfully placed, false otherwise
         const size = ship.size;
         const result = this.checkShipPlacement(row, col, size, direction);
-        if (result.length) {
-            this.addShip(ship, result);
+        if (result.validPlacement) {
+            this.addShip(ship, result.shipSpaces);
         }
         
-        return result.length;
+        return result.validPlacement;
     }
 
     addShip(ship, shipSpaces) {

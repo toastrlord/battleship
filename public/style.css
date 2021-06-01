@@ -43,7 +43,11 @@
 }
 
 .highlighted {
-    opacity: 0.5;
+    background-color: white;
+}
+
+.highlighted-invalid {
+    background-color: rgb(255, 0, 0);
 }
 
 .row {
