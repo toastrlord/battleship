@@ -9,13 +9,16 @@ function PlacementComponent(props) {
 
     return (
         <div>
-            <button onClick={props.rotate}>Rotate</button>
+            <div className='row'>
+                <button onClick={props.rotate}>Rotate</button>
+                <button onClick={props.placeRandomly}>Place Ships Randomly</button>
+            </div>
             <div className='ship-placement-container' style={{flexDirection: containerFlexDirection, alignItems: alignItems}}>
             {
                 Object.keys(props.ships).map((ship, index) => {
                     const currentShip = props.ships[ship];
                     if (!currentShip.placed) {
-                        return <PlaceShipComponent key={index} shipName={ship} dragStart={(i) => props.setCurrentShip(ship, i, currentShip.size)} shipSize={currentShip.size} flexDirection={shipFlexDirection}/>
+                        return <PlaceShipComponent key={index} shipName={ship} dragStart={(i) => props.setCurrentShip(ship, i, currentShip.size)} dragEnd={props.dragEnd} shipSize={currentShip.size} flexDirection={shipFlexDirection}/>
                     } else {
                         return null;
                     }

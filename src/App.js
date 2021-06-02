@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Game from './Game';
+import { Game, placeShipsRandomly } from './Game';
 import BoardComponent from './components/BoardComponent';
 import PlaceShipComponent from './components/PlaceShipComponent';
 import { DIRECTION_DOWN, DIRECTION_RIGHT, makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier, SIZE_PATROL_BOAT, SIZE_SUBMARINE, SIZE_DESTROYER, SIZE_BATTLESHIP, SIZE_CARRIER, DIRECTION_UP } from './Ship';
@@ -17,6 +17,7 @@ class App extends Component {
     this.shipPlaced = this.shipPlaced.bind(this);
     this.reset = this.reset.bind(this);
     this.setCurrentShip = this.setCurrentShip.bind(this);
+    this.playerBoardRef = new React.createRef();
 
     const game = new Game();
     game.stateChangedCallback = this.onGameStateChanged;
@@ -28,11 +29,11 @@ class App extends Component {
       shipSize: null,
       direction: DIRECTION_DOWN,
       ships: {
-        'PT BOAT': { constructor: makePatrolBoat, placed: false, size: SIZE_PATROL_BOAT},
-        'DESTROYER': { constructor: makeDestroyer, placed: false, size: SIZE_DESTROYER},
-        'SUBMARINE': { constructor: makeSubmarine, placed: false, size: SIZE_SUBMARINE},
-        'BATTLESHIP': { constructor: makeBattleship, placed: false, size: SIZE_BATTLESHIP},
-        'CARRIER': { constructor: makeCarrier, placed: false, size: SIZE_CARRIER},
+        'PT Boat': { constructor: makePatrolBoat, placed: false, size: SIZE_PATROL_BOAT},
+        'Destroyer': { constructor: makeDestroyer, placed: false, size: SIZE_DESTROYER},
+        'Submarine': { constructor: makeSubmarine, placed: false, size: SIZE_SUBMARINE},
+        'Battleship': { constructor: makeBattleship, placed: false, size: SIZE_BATTLESHIP},
+        'Carrier': { constructor: makeCarrier, placed: false, size: SIZE_CARRIER},
       },
     }
 
@@ -47,11 +48,11 @@ class App extends Component {
         gameState: newState,
         currentShip: null,
         ships: {
-          'PT BOAT': { constructor: makePatrolBoat, placed: false, size: SIZE_PATROL_BOAT},
-          'DESTROYER': { constructor: makeDestroyer, placed: false, size: SIZE_DESTROYER},
-          'SUBMARINE': { constructor: makeSubmarine, placed: false, size: SIZE_SUBMARINE},
-          'BATTLESHIP': { constructor: makeBattleship, placed: false, size: SIZE_BATTLESHIP},
-          'CARRIER': { constructor: makeCarrier, placed: false, size: SIZE_CARRIER},
+          'PT Boat': { constructor: makePatrolBoat, placed: false, size: SIZE_PATROL_BOAT},
+          'Destroyer': { constructor: makeDestroyer, placed: false, size: SIZE_DESTROYER},
+          'Submarine': { constructor: makeSubmarine, placed: false, size: SIZE_SUBMARINE},
+          'Battleship': { constructor: makeBattleship, placed: false, size: SIZE_BATTLESHIP},
+          'Carrier': { constructor: makeCarrier, placed: false, size: SIZE_CARRIER},
         },
       })
     }
@@ -124,8 +125,21 @@ class App extends Component {
     switch(gameState) {
       case PLACING_SHIPS:
         return (<div className='vertical-display'>
-        <PlacementComponent ships={ships} direction={direction} rotate={this.rotate} setCurrentShip={this.setCurrentShip}/>
-          <BoardComponent board={game.playerBoard} reveal={true} ship={currentShip} shipSize={shipSize} startIndex={startIndex} direction={direction}
+        <PlacementComponent ships={ships} direction={direction} rotate={this.rotate} dragEnd={this.playerBoardRef.current ? this.playerBoardRef.current.clearHighlighting : () => null}
+        placeRandomly={
+          () => {
+            const shipList = Object.keys(ships).filter(shipName => !ships[shipName].placed).map(shipName => {
+              return {constructor: ships[shipName].constructor, size: ships[shipName].size}
+            });
+            placeShipsRandomly(game.playerBoard, shipList);
+              this.setState({
+                ships: {},
+                currentShip: null,
+                gameState: PLAYING,
+              });
+          }} 
+          setCurrentShip={this.setCurrentShip}/>
+          <BoardComponent ref={this.playerBoardRef} board={game.playerBoard} reveal={true} ship={currentShip} shipSize={shipSize} startIndex={startIndex} direction={direction}
             drop={(row, col) => {
               if (currentShip) {
                 const result = game.playerBoard.tryPlaceShip(row, col, ships[currentShip].constructor, direction);

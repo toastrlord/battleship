@@ -5,36 +5,49 @@ import { makeBattleship, makePatrolBoat, makeSubmarine, makeDestroyer, makeCarri
 import {HIT_STATE_EMPTY, HIT_STATE_MISS} from './Space';
 import ComputerPlayer from "./ComputerPlayer";
 
-function placeShipsRandomly(board) {
-    console.log('randomly placing ships');
-    let ships = [makePatrolBoat, makeSubmarine, makeDestroyer, makeBattleship, makeCarrier];
-    ships.forEach(shipConstructor => {
+const allShips = [
+    {constructor: makePatrolBoat, size: 2},
+    {constructor: makeSubmarine, size: 3},
+    {constructor: makeDestroyer, size: 3},
+    {constructor: makeBattleship, size: 4},
+    {constructor: makeCarrier, size: 5}
+];
+
+function placeShipsRandomly(board, shipsToPlace) {
+    const ships = Object.assign(shipsToPlace);
+    ships.forEach(({constructor: shipConstructor, size}) => {
         let placed = false;
         while (!placed) {
             const row = Math.round(Math.random() * (HEIGHT - 1));
             const col = Math.round(Math.random() * (WIDTH - 1));
             const direction = Math.round(Math.random());
-            const adjacentSquares = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([rowOffset, colOffset]) => {
-                return {row: row + rowOffset, col: col + colOffset}
-            }).filter(({row, col}) => {
-                return row >= 0 && row < HEIGHT && col >= 0 && col < WIDTH;
-            });
-            /*const isShipAdjacent = adjacentSquares.map(({row, col}) => {
-                return board.getSpace(row, col).onHitListener;
-            });*/
-            //if (!isShipAdjacent) {
-                placed = board.tryPlaceShip(row, col, shipConstructor, direction);
-            //}
+            const result = board.checkShipPlacement(row, col, size, direction);
+            if (result.validPlacement) {
+                const spaces = result.shipSpaces;
+                const withAdjacent = spaces.map(({row, col}) => {
+                    const adjacentSpaces = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([rowOffset, colOffset]) => {
+                        return {row: row + rowOffset, col: col + colOffset};
+                    });
+                    return adjacentSpaces;
+                }).reduce((prev, current) => prev.concat(current))
+                .filter(({row, col}) => {
+                    const space = board.getSpace(row, col);
+                    return space ? space.onHitCallback : false;
+                });
+                if (!withAdjacent.length) {
+                    placed = board.tryPlaceShip(row, col, shipConstructor, direction);
+                }
+            }
         }
     });
-    console.log('done placing ships');
+
     return board;
 }
 
 class Game {
     constructor() {
         const playerBoard = new Gameboard();
-        const computerBoard = placeShipsRandomly(new Gameboard());
+        const computerBoard = placeShipsRandomly(new Gameboard(), allShips);
         this.playerBoard = playerBoard;
         this.computerBoard = computerBoard;
         this.currentPlayer = this.human;
@@ -52,13 +65,13 @@ class Game {
     }
 
     startGame() {
-        this.computerBoard = placeShipsRandomly(this.computerBoard);
+        this.computerBoard = placeShipsRandomly(this.computerBoard, allShips);
         this.changeState(PLAYING);
     }
 
     reset() {
         this.playerBoard = new Gameboard();
-        this.computerBoard = placeShipsRandomly(new Gameboard());
+        this.computerBoard = placeShipsRandomly(new Gameboard(), allShips);
         this.humanTurn = true;
         this.changeState(PLACING_SHIPS);
     }
@@ -110,4 +123,4 @@ class Game {
     }
 }
 
-export default Game;
+export {Game, placeShipsRandomly};

@@ -4,6 +4,14 @@
     position: absolute;
 }
 
+.grid-label {
+    width: 27px;
+    height: 27px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .space {
     width: 25px;
     height: 25px;
@@ -53,6 +61,7 @@
 .row {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
 }
 
 .main-display {
