@@ -4,7 +4,7 @@ import {HEIGHT, WIDTH } from '../Gameboard';
 import { HIT_STATE_REVEAL_SHIP, HIT_STATE_HIT, HIT_STATE_SUNK, HIT_STATE_EMPTY } from '../Space';
 import { DIRECTION_DOWN } from '../Ship';
 
-const COL_NUMBERS = ['', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const COL_NUMBERS = ['', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ''];
 const ROW_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
 class BoardComponent extends Component {
@@ -81,6 +81,7 @@ class BoardComponent extends Component {
                 });
                 return <SpaceComponent highlighted={highlighted.length} invalidPlacement={highlighted.length && !validPlacement} hitState={hitState} row={row} col={col} key={row * HEIGHT + col} onDragEnter={onDragEnter} drop={drop ? drop : null} onSpaceClicked={onClickCallback && hitState === HIT_STATE_EMPTY ? () => onClickCallback(row, col) : null}/>
             })}
+            <p className='grid-label'></p>
         </div>);
     }
 
@@ -106,7 +107,7 @@ class BoardComponent extends Component {
             rows.push(i);
         }
         return (<div className='board-grid' onMouseMove={this.props.onMouseMove}>
-            {this.props.title}
+            <p style={{fontWeight: 'bold'}}>{this.props.title}</p>
             <div className='row'>{COL_NUMBERS.map(num => <p className='grid-label'>{num}</p>)}</div>
             {rows.map(row => {
                 return this.generateRow(row);

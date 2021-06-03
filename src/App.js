@@ -125,7 +125,16 @@ class App extends Component {
     switch(gameState) {
       case PLACING_SHIPS:
         return (<div className='vertical-display'>
-        <PlacementComponent ships={ships} direction={direction} rotate={this.rotate} dragEnd={this.playerBoardRef.current ? this.playerBoardRef.current.clearHighlighting : () => null}
+          <p style={{fontWeight: 'bold', fontSize: '40px', marginTop: '12px'}}>Battleship</p>
+          <BoardComponent ref={this.playerBoardRef} board={game.playerBoard} reveal={true} ship={currentShip} shipSize={shipSize} startIndex={startIndex} direction={direction}
+            drop={(row, col) => {
+              if (currentShip) {
+                const result = game.playerBoard.tryPlaceShip(row, col, ships[currentShip].constructor, direction);
+                if (result) {
+                  this.shipPlaced(currentShip);
+                }
+          }}}/> 
+          <PlacementComponent ships={ships} direction={direction} rotate={this.rotate} dragEnd={this.playerBoardRef.current ? this.playerBoardRef.current.clearHighlighting : () => null}
         placeRandomly={
           () => {
             const shipList = Object.keys(ships).filter(shipName => !ships[shipName].placed).map(shipName => {
@@ -139,14 +148,6 @@ class App extends Component {
               });
           }} 
           setCurrentShip={this.setCurrentShip}/>
-          <BoardComponent ref={this.playerBoardRef} board={game.playerBoard} reveal={true} ship={currentShip} shipSize={shipSize} startIndex={startIndex} direction={direction}
-            drop={(row, col) => {
-              if (currentShip) {
-                const result = game.playerBoard.tryPlaceShip(row, col, ships[currentShip].constructor, direction);
-                if (result) {
-                  this.shipPlaced(currentShip);
-                }
-          }}}/> 
         </div>);
       case PLAYING:
         return (<div className='main-display'>
@@ -154,10 +155,14 @@ class App extends Component {
           <BoardComponent title='Opponent Board' onClickCallback={game.makePlayerMove} board={game.computerBoard} reveal={false}/>
         </div>)
       case GAME_OVER:
-        return (<div className='main-display'>
-          <BoardComponent title='Your Board' board={game.playerBoard} reveal={true}/>
-          <BoardComponent title='Opponent Board' board={game.computerBoard} reveal={true}/>
-          <button onClick={this.reset}>Play Again?</button>
+        return (<div>
+          <div className='main-display'>
+            <BoardComponent title='Your Board' board={game.playerBoard} reveal={true}/>
+            <BoardComponent title='Opponent Board' board={game.computerBoard} reveal={true}/>
+          </div>
+          <div className='row' style={{justifyContent: 'center'}}>
+            <button onClick={this.reset}>Play Again?</button>
+          </div>
         </div>);
       default:
         console.log(`no match for game state: ${gameState}`);

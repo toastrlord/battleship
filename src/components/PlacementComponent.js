@@ -10,7 +10,7 @@ function PlacementComponent(props) {
     const names = Object.keys(props.ships).map(ship => {
         const currentShip = props.ships[ship];
         if (!currentShip.placed) {
-            return <p>{ship}</p>
+            return <p style={{marginLeft: '4px', marginRight: '4px'}}>{ship}</p>
         } else {
             return null;
         }
@@ -28,13 +28,15 @@ function PlacementComponent(props) {
     });
     return (
         <div>
-            <div className='row'>
-                <button onClick={props.rotate}>Rotate</button>
-                <button onClick={props.placeRandomly}>Place Ships Randomly</button>
+            <div className='row' style={{justifyContent: 'center'}}>
+                <button onClick={props.rotate}>Rotate Ships</button>
             </div>
-            <div className='ship-placement-container' style={{flexDirection: containerFlexDirection, alignItems: 'stretch'}}>
+            <div className='ship-placement-container' style={{flexDirection: containerFlexDirection, alignItems: 'stretch', marginTop: '16px', marginBottom: '16px'}}>
                 <div style={{display: 'flex', flexDirection: shipFlexDirection, justifyContent: 'space-around'}}>{names}</div>
                 <div style={{display: 'flex', flexDirection: shipFlexDirection, alignItems: alignItems, justifyContent: 'space-around'}}>{shipDisplays}</div>
+            </div>
+            <div className='row' style={{justifyContent: 'center'}}>
+                <button onClick={props.placeRandomly}>Place Ships Randomly</button>
             </div>
           </div>
     )

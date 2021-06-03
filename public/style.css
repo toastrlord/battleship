@@ -1,25 +1,41 @@
 @import 'reset.css';
 
+button {
+    font-family: "Lucida Console", "Courier New", monospace;
+    border: solid 2px black;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: white;
+}
+
+body {
+    background-color: rgb(99, 99, 99);
+    font-family: "Lucida Console", "Courier New", monospace;
+}
+
 .cursor-follow {
     position: absolute;
 }
 
 .grid-label {
-    width: 27px;
-    height: 27px;
+    width: 24px;
+    height: 24px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .space {
-    width: 25px;
-    height: 25px;
+    width: 20px;
+    height: 20px;
     border: solid 2px black;
+    margin: 1px;
 }
 
 .hit-square {
-    background-color:red;
+    background-color:rgb(221, 44, 44);
 }
 
 .sunk-square {
@@ -27,11 +43,11 @@
 }
 
 .miss-square {
-    background-color: navy;
+    background-color: rgb(21, 21, 124);
 }
 
 .empty-square {
-    background-color: blue;
+    background-color: rgb(87, 87, 240);
 }
 
 .clickable {
@@ -39,7 +55,7 @@
 }
 
 .ship-square {
-    background-color: grey;
+    background-color: rgb(209, 209, 209);
 }
 
 .board-grid {
@@ -48,6 +64,8 @@
     text-align: center;
     margin-left: 16px;
     margin-right: 16px;
+    margin-top: 16px;
+    margin-bottom: 32px;
 }
 
 .highlighted {
