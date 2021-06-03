@@ -105,7 +105,7 @@ class BoardComponent extends Component {
         for (let i = 0; i < HEIGHT; i++) {
             rows.push(i);
         }
-        return (<div className='board-grid' onMouseMove={this.props.onMouseMove} onDragEnd={this.clearHighlighting}>
+        return (<div className='board-grid' onMouseMove={this.props.onMouseMove}>
             {this.props.title}
             <div className='row'>{COL_NUMBERS.map(num => <p className='grid-label'>{num}</p>)}</div>
             {rows.map(row => {

@@ -10,8 +10,7 @@ class PlaceShipComponent extends Component {
         }
         return (
         <div style={{display:'flex', justifyContent: 'center', flexDirection: this.props.flexDirection, alignItems: 'center'}} className='ship-placement'>
-            <div>{this.props.shipName}</div>
-            <div style={{flexDirection: this.props.flexDirection, display: 'flex'}}>
+            <div style={{flexDirection: this.props.flexDirection, display: 'flex', alignItems: 'flex-end'}}>
                 {spaces}
             </div>
         </div>);
