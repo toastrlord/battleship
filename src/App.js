@@ -134,6 +134,8 @@ class App extends Component {
                   this.shipPlaced(currentShip);
                 }
           }}}/> 
+          <p>Place all ships to start the game</p>
+          <p style={{marginTop: '4px', marginBottom: '4px'}}>To place ships, click and drag them onto the board</p>
           <PlacementComponent ships={ships} direction={direction} rotate={this.rotate} dragEnd={this.playerBoardRef.current ? this.playerBoardRef.current.clearHighlighting : () => null}
         placeRandomly={
           () => {

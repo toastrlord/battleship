@@ -1,70 +1,50 @@
-# Getting Started with Create React App
+# Battleship
+This project was created using React. Place your ships and face off against a computer opponent!
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Live Demo
 
-## Available Scripts
+# How to Play
+## Placing your ships
+![Ship selection screen](./readme_images/start.png?raw=true)
+To start the game, simply click and drag the ships from the area below onto the blue board. Click the rotate button to turn ships 90 degrees for more placement options.
+You (and your opponent) have a total have 5 ships. These ships are:
+-Carrier (5 spaces long)
+-Battleship (3 spaces long)
+-Submarine (3 spaces long)
+-Destroyer (3 spaces long)
+-PT Boat (2 spaces long)
 
-In the project directory, you can run:
+Cells will be highlighted in white for valid placements...
 
-### `npm start`
+...and in red for invalid placements.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Once all ships are placed, the game will start!
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Taking your turn
+![A new game](./readme_images/new_game.png?raw=true)
+Once the game starts, you will see your board and your opponent's board. Your opponent's board will be hidden at first- you have to guess where they've placed their ships!
+Click on a light blue square on the opponent's board to fire. If you miss, the square will turn dark blue, and it will be the opponent's turn.
 
-### `npm test`
+But, if it turns red....
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Scoring a hit
+![A board with a ship that's been hit](./readme_images/hit_ship.png?raw=true)
+A red square means you've hit! Search the adjacent squares to find the rest of the ship. Your turn does not end until you've missed a square, so keep at it!
 
-### `npm run build`
+Dark blue squares show where you've already guessed and missed. When red squares turn dark red, congratulations! That means the ship has been sunk
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+![A ship that's been sunk](./readme_images/sunk_ship.png?raw=true)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Winning the game
+![A victorious game](./readme_images/victory.png?raw=true)
+To win, sink all your opponent's ships before they sink yours! 
+Be careful: your opponent will not eat, drink or sleep until it has won!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# How the AI works
+The AI will do more than just guess random spaces- it will also keep track of ships that it's sunk, and determine if a potential guess could actually fit an enemy ship or not.
+It has two modes: search and destroy.
 
-### `npm run eject`
+When in search mode, the AI will guess a random space, keeping in mind the minimum possible size of an enemy ship. If a minimum-sized ship could fit in this space, it will fire.
+Otherwise, it will search another space and try again. Search mode continues until it scores a hit.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+In destroy mode, it will determine which way the ship is facing and search along that direction until the ship is sunk. If it encounters two adjacent ships, it will not revert to search mode until all ships it has found are sunk.

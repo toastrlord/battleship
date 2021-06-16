@@ -105,11 +105,13 @@ class Game {
                 // wait for player input
             }
             else {
-                const result = this.computerPlayer.makeMove();
-                if (!result) {
-                    this.humanTurn = true;
-                }
-                this.nextMove();
+                setTimeout(() => {
+                    const result = this.computerPlayer.makeMove();
+                    if (!result) {
+                        this.humanTurn = true;
+                    }
+                    this.nextMove();
+                }, 450);
             }
         }    
     }

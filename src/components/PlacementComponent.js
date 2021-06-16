@@ -10,7 +10,7 @@ function PlacementComponent(props) {
     const names = Object.keys(props.ships).map(ship => {
         const currentShip = props.ships[ship];
         if (!currentShip.placed) {
-            return <p style={{marginLeft: '4px', marginRight: '4px'}}>{ship}</p>
+            return <p style={{marginLeft: '4px', marginRight: '4px', textOrientation: 'mixed', writingMode: props.direction === DIRECTION_DOWN ? 'vertical-rl' : 'horizontal-tb'}}>{ship}</p>
         } else {
             return null;
         }
@@ -32,7 +32,7 @@ function PlacementComponent(props) {
                 <button onClick={props.rotate}>Rotate Ships</button>
             </div>
             <div className='ship-placement-container' style={{flexDirection: containerFlexDirection, alignItems: 'stretch', marginTop: '16px', marginBottom: '16px'}}>
-                <div style={{display: 'flex', flexDirection: shipFlexDirection, justifyContent: 'space-around'}}>{names}</div>
+                <div style={{display: 'flex', flexDirection: shipFlexDirection, alignItems: 'flex-start', justifyContent: 'space-around'}}>{names}</div>
                 <div style={{display: 'flex', flexDirection: shipFlexDirection, alignItems: alignItems, justifyContent: 'space-around'}}>{shipDisplays}</div>
             </div>
             <div className='row' style={{justifyContent: 'center'}}>
