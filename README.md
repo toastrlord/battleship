@@ -17,11 +17,14 @@ You (and your opponent) have a total have 5 ships. These ships are:
 -PT Boat (2 spaces long)
 
 Cells will be highlighted in white for valid placements...
+
 ![A valid ship placment](./readme_images/valid_placement.png?raw=true)
 
 ![An invalid ship placement](./readme_images/invalid_placement.png?raw=true)
  
 ...and in red for invalid placements.
+
+If you do not wish to place all ships manually, click on the "Place Ships Randomly" button. This will place any ships you haven't put on the board already.
 
 Once all ships are placed, the game will start!
 
