@@ -10,10 +10,15 @@ https://toastrlord.github.io/battleship/
 
 To start the game, simply click and drag the ships from the area below onto the blue board. Click the rotate button to turn ships 90 degrees for more placement options.
 You (and your opponent) have a total have 5 ships. These ships are:
+
 -Carrier (5 spaces long)
+
 -Battleship (3 spaces long)
+
 -Submarine (3 spaces long)
+
 -Destroyer (3 spaces long)
+
 -PT Boat (2 spaces long)
 
 Cells will be highlighted in white for valid placements...
